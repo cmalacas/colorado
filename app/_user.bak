@@ -1,0 +1,95 @@
+<?php
+
+namespace App;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+use Carbon;
+
+use DB;
+
+class xxxxUser extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    public function timesheets()
+    {
+        return $this->hasMany('App\Timesheet', 'Timesheet_user_id');
+    }
+
+    public function getTimesheetByDate($date)
+    {
+        //DB::enableQueryLog();
+
+        $timesheets = $this->timesheets()
+                    ->where('Timesheet_date', $date)
+                    ->get();
+
+        //print_r(DB::getQueryLog());
+       
+        return $timesheets;
+    }
+
+    public function timesheet_total($date) {
+        $total = 0;
+
+        $timesheets = $this->timesheets()
+                    ->where('Timesheet_date', $date)
+                    ->get();
+
+        foreach($timesheets as $ts) {
+
+            $end = $ts->Timesheet_end_time / 3600;
+            $start = $ts->Timesheet_start_time / 3600;
+            $breaks = $ts->Timesheet_breaks / 60;
+
+            $total += ($end - $start - $breaks);
+        }
+
+        return sprintf("%s %s", $total, $total > 1 ? 'hrs' : 'hr');
+    }
+
+    public function role()
+    {
+        return $this->hasOne('App\Role', 'id', 'role_id');
+    }
+
+    public function terms()
+    {
+        return $this->hasMany('App\Term', 'employee_id');
+    }
+
+    public function current_term() {
+        $term = $this->hasOne('App\Term', 'employee_id')->where('start_date', '<=', Carbon::now())->where('end_date', '>=', Carbon::now());
+        return $term;
+    }    
+}
