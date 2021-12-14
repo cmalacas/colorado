@@ -82,7 +82,7 @@
 
       <td style="padding: 5px 0">To:</td>
 
-      <td style="width:500px">{{ $data->to }}</td>
+      <td style="width:500px">{{ $data->vendor->vendor }}</td>
 
       <td style="width:150px; padding: 5px 0">For:</td>
 
@@ -138,15 +138,23 @@
       </thead>
       <tbody>
         @foreach($data->items as $item)
-        <tr>
-          <td style="padding: 5px; border-bottom: solid 1px #000; border-left: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ number_format($item->qty, 0) }}</td>
-          <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000;">{{ $item->description}}</td>
-          <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:right">{{ $item->price }}</td>
-          <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $item->recvd }}</td>
-          <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $item->date }}</td>
-          <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $item->production_order_id }}</td>
-        </tr>
+          
+          @php $strs = explode("\n", $item->description ) @endphp
+
+          @for( $i = 0; $i < count( $strs ); $i++)
+          <tr>
+            <td style="min-height:20px; padding: 5px; border-bottom: solid 1px #000; border-left: solid 1px #000; border-right: solid 1px #000; text-align:center">{!! $i == 0 ? $item->qty : '&nbsp;' !!}</td>
+            <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000;">{{ $strs[$i] }}</td>
+            <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:right">{{ $i == 0 ? $item->price : '' }}</td>
+            <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $i == 0 ?  $item->recvd : '' }}</td>
+            <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $i == 0 ? $item->date : '' }}</td>
+            <td style="padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $i == 0 ? $item->production_order_id : '' }}</td>
+          </tr>
+
+          @endfor
+
         @endforeach
+        
         @for($i=0; $i <= ( 20 - $data->items->count() ); $i++)
 
         <tr>
@@ -161,6 +169,7 @@
         </tr>
 
         @endfor
+        
       </tbody>
       <tfoot>
 

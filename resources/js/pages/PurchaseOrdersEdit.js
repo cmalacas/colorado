@@ -8,7 +8,9 @@ import { Contact, ProductionOrder } from './PurchaseOrders';
 import { phone_number_check } from '../components/Functions';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy, faPrint, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faCopy, faPrint, faArrowLeft, faPlus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+
+import { Add } from './Vendors';
 
 export default class PurchaseOrdersEdit extends Component {
 
@@ -25,6 +27,7 @@ export default class PurchaseOrdersEdit extends Component {
             todaysdate: '',
             to: '',
             phone: '',
+            extension:'',
             cellphone: '',
             email: '',
             ship: '',
@@ -35,6 +38,9 @@ export default class PurchaseOrdersEdit extends Component {
             address: '',
             shippingco: '',
             lastItem: 0,
+            next: 0,
+            previous: 0,
+            pos: [],
             productionOrders: [],
         }
 
@@ -51,6 +57,48 @@ export default class PurchaseOrdersEdit extends Component {
         this.back = this.back.bind(this);
         this.addContact = this.addContact.bind(this);
         this.vendorSelected = this.vendorSelected.bind(this);
+        this.add = this.add.bind(this);
+        this.select = this.select.bind(this);
+        this.next = this.next.bind(this);
+        this.previous = this.previous.bind(this);
+        this.saveVendor = this.saveVendor.bind(this);
+    }
+
+    saveVendor( data ) {
+
+        Authservice.saveVendor( data )
+        .then( response => {
+
+            if (response.vendors) {
+
+                this.setState( { customers: response.vendors } );
+
+            }
+
+        })
+
+    }
+
+    next() {
+
+        location = `/purchase-orders/${this.state.next}/edit`;
+
+    }
+
+    previous() {
+
+        location = `/purchase-orders/${this.state.previous}/edit`;
+
+    }
+
+    select( e ) {
+
+        location = `/purchase-orders/${e.target.value}/edit`;
+
+    }
+
+    add() {
+        location = '/purchase-orders/create';
     }
 
     vendorSelected( e ) {
@@ -112,8 +160,6 @@ export default class PurchaseOrdersEdit extends Component {
 
     removeItem( data )  {
 
-        console.log('remove', data.itemNo);
-
         const productionOrders = this.state.productionOrders.filter( p => p.itemNo !== data.itemNo );
 
         this.setState( { productionOrders } );
@@ -165,19 +211,19 @@ export default class PurchaseOrdersEdit extends Component {
 
     }
 
-    selected( name, phone, phone_ext, fax, email, cellphone ) {
+    selected( name, phone, extension, fax, email, cellphone ) {
 
-        this.setState( { contact: name, phone: `${phone} ${phone_ext ? phone_ext : ''}`, email, fax, cellphone } );
+        this.setState( { contact: name, phone, extension, email, fax, cellphone } );
 
     }
 
     save() {
 
-        const { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, contact, address } = this.state;
+        const { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, contact, address, extension } = this.state;
 
         const _for = this.state.for;
 
-        const data = { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact  }
+        const data = { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact, extension }
 
         Authservice.updatePurchaseOrders( data )
         .then( response => {
@@ -218,11 +264,17 @@ export default class PurchaseOrdersEdit extends Component {
                 const _for = purchase.for;
                 const to = purchase.to;
                 const phone = purchase.phone;
+                const extension = purchase.extension;
                 const datereqd = purchase.datereqd;
                 const comments = purchase.comments;
                 const cellphone = purchase.cellphone;
                 const contact = purchase.contact;
                 const address = purchase.address;
+
+                const next = response.next;
+                const previous = response.previous;
+
+                const pos = response.pos;
 
                 const productionOrders = purchase.items.map( (i,index) => {
 
@@ -251,9 +303,13 @@ export default class PurchaseOrdersEdit extends Component {
                                  todaysdate,
                                  email,
                                  phone,
+                                 extension,
                                  datereqd,
                                  comments,
-                                 cellphone
+                                 cellphone,
+                                 previous,
+                                 next,
+                                 pos
                                 } );
 
             }
@@ -308,12 +364,41 @@ export default class PurchaseOrdersEdit extends Component {
                 </div>
 
                 <Card>
-                    <CardHeader className="d-flex justify-content-end">
-                        <Button className="mr-1" onClick={ this.save } color="primary">Save</Button>
+                    <CardHeader className="d-flex justify-content-between">
 
-                        <Button onClick={ this.print } className="mr-1" color="info"><FontAwesomeIcon icon={faPrint} /></Button>
-                        <Button onClick={ this.copy } className="mr-1" color="info"><FontAwesomeIcon icon={faCopy} /></Button>
-                        <Button onClick={ this.back } color="info"><FontAwesomeIcon icon={faArrowLeft} /></Button>
+                        <div className="d-flex justify-content-between">
+
+                            { this.state.id > this.state.previous ?
+
+                            <Button color="info" onClick={ this.previous } className="mr-1"><FontAwesomeIcon icon={faChevronLeft} /></Button>
+
+                            : '' }
+
+                            <Input onChange={ this.select } type="select" value={this.state.id}>
+                                {
+                                    this.state.pos.map( p => {
+
+                                        return <option value={p.id}>{p.id}</option>
+
+                                    })
+                                }
+                            </Input>
+
+                            { this.state.id < this.state.next ?
+
+                            <Button color="info" onClick={ this.next } className="ml-1"><FontAwesomeIcon icon={faChevronRight} /></Button>
+
+                            : '' }
+
+                        </div>
+
+                        <div>
+                            <Button className="mr-1" onClick={ this.save } color="primary">Save</Button>
+                            <Button onClick={ this.print } className="mr-1" color="info"><FontAwesomeIcon icon={faPrint} /></Button>
+                            <Button onClick={ this.copy } className="mr-1" color="info"><FontAwesomeIcon icon={faCopy} /></Button>
+                            <Button onClick={ this.add } className="mr-1" color="info"><FontAwesomeIcon icon={faPlus} /></Button>
+                            <Button onClick={ this.back } color="info"><FontAwesomeIcon icon={faArrowLeft} /></Button>
+                        </div>
                     </CardHeader>
                     <CardBody>
 
@@ -335,17 +420,24 @@ export default class PurchaseOrdersEdit extends Component {
                         <FormGroup row>
                             <Col md={6}>
                                 <Row>
-                                    <Label>To</Label>
-                                    <Input type="select" name="to" value={ this.state.to } onChange={ this.vendorSelected }>
-                                        <option value="0">select customer</option>
-                                        {
-                                            this.state.customers.map( c => {
+                                    <Col>
+                                        <Label className="d-block">To</Label>
+                                        <div className="d-flex justify-content-between">
+                                            <Input type="select" name="to" value={ this.state.to } onChange={ this.vendorSelected }>
+                                                <option value="0">select customer</option>
+                                                {
+                                                    this.state.customers.map( c => {
 
-                                                return <option value={c.id}>{c.vendor}</option>
+                                                        return <option value={c.id}>{c.vendor}</option>
 
-                                            })
-                                        }
-                                    </Input>
+                                                    })
+                                                }
+                                            </Input>
+                                            <div className="ml-1">
+                                                <Add icon={ faPlus } save={ this.saveVendor } />
+                                            </div>
+                                        </div>
+                                    </Col>
                                 </Row>
                                 <Row className="mt-3">
                                     <Col>
@@ -384,9 +476,13 @@ export default class PurchaseOrdersEdit extends Component {
                        
 
                         <FormGroup row>
-                            <Col md={4}>
+                            <Col md={3}>
                                 <Label>Phone</Label>
                                 <Input type="text" name="phone" value={ this.state.phone } onChange={ this.changePhone } />
+                            </Col>
+                            <Col md={1}>
+                                <Label>Extension</Label>
+                                <Input type="text" name="extension" value={ this.state.extension } onChange={ this.change } />
                             </Col>
                             <Col md={4}>
                                 <Label>Fax</Label>

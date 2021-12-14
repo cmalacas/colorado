@@ -34,7 +34,7 @@ class PurchaseOrders extends Controller
                 'id' => sprintf("<a href='/purchase-orders/%s/edit' title='Edit' data-action='edit'>%s</a>", $result->id, $result->id),
                 'todasydate' => $result->todaysdate,
                 'datereqd' => $result->datereqd,
-                'to' => $result->vendor->vendor,
+                'to' => $result->vendor ? $result->vendor->vendor : '',
                 'for' => $result->for,
                 'Action' => sprintf("<a href='/purchase-orders/%s/edit' class='btn btn-primary' title='Edit' data-action='edit'><i class='fa fa-edit'></i></a> <a href='/purchase-orders/%s/print' target='_blank' class='btn btn-info' title='Print' data-action='print' data-id='%s'><i class='fa fa-print'></i></a> <a title='Delete' data-action='delete' data-id='%s' href='' class='btn btn-danger'><i class='fa fa-trash'></i></a>", $result->id, $result->id, $result->id, $result->id)
             ];
@@ -86,6 +86,7 @@ class PurchaseOrders extends Controller
         $po->email = $request->get('email');
         $po->contact = $request->get('contact');
         $po->address = $request->get('address');
+        $po->extension = $request->get('extension');
 
         $po->save();
 
@@ -177,7 +178,7 @@ class PurchaseOrders extends Controller
         $po->email = $request->get('email');
         $po->contact = $request->get('contact');
         $po->address = $request->get('address');
-
+        $po->extension = $request->get('extension');
         
         $po->save();
 
@@ -285,8 +286,21 @@ class PurchaseOrders extends Controller
 
             $purchase->items;
 
+            $result = PurchaseOrder::where('id', '>', $request->get('id'))->orderBy('id','asc')->first();
+
+            $next = $result ? $result->id : $request->get('id');
+        
+            $result = PurchaseOrder::where('id', '<', $request->get('id'))->orderBy('id', 'desc')->first();
+
+            $previous = $result ? $result->id : $request->get('id');
+
+            $data['pos'] = PurchaseOrder::select('id')->orderBy('id')->get();
+            $data['next'] = $next;
+            $data['previous'] = $previous;
+
         }
 
+        
 
         $data['purchase'] = $purchase;
 
@@ -318,6 +332,7 @@ class PurchaseOrders extends Controller
         $po->datereqd = $request->get('datereqd');
         $po->comments = $request->get('comments');
         $po->email = $request->get('email');
+        $po->extension = $request->get('extension');
 
         $po->save();
 

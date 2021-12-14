@@ -213,7 +213,7 @@ export default class Vendors extends Component {
 
 }
 
-class Add extends Component {
+export class Add extends Component {
 
     constructor( props ) {
 
@@ -286,7 +286,7 @@ class Add extends Component {
 
             <Fragment>
 
-                <Button onClick={this.open} color="primary" className="mr-1">Add Vendor</Button>
+                <Button onClick={this.open} color="primary" className="mr-1">{ this.props.icon ? <FontAwesomeIcon icon={this.props.icon} /> : `Add Vendor` }</Button>
                 <Modal isOpen={this.state.open} toggle={this.close}>
                     <ModalHeader className="d-flex justify-content-between">
                         Add Vendor
@@ -378,7 +378,7 @@ class Edit extends Component {
 
             this.props.save( this.state );
 
-            this.setState( { open: false } );
+            this.setState( { open: false, vendor: '', address: '' } );
 
         } else {
 

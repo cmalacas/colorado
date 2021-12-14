@@ -5,8 +5,10 @@ import Authservice from '../components/Authservice';
 import { phone_number_check } from '../components/Functions';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUserCheck, faTimes, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faUserCheck, faTimes, faEdit, faPlus } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
+
+import { Add } from './Vendors'
 
 export default class PurchaseOrders extends Component {
 
@@ -22,6 +24,7 @@ export default class PurchaseOrders extends Component {
             todaysdate: '',
             to: '',
             phone: '',
+            extension: '',
             cellphone: '',
             email: '',
             ship: 'Pickup',
@@ -45,6 +48,22 @@ export default class PurchaseOrders extends Component {
         this.removeItem = this.removeItem.bind(this);
         this.addContact = this.addContact.bind(this);
         this.vendorSelected = this.vendorSelected.bind(this);
+        this.saveVendor = this.saveVendor.bind(this);
+    }
+
+    saveVendor( data ) {
+
+        Authservice.saveVendor( data )
+        .then( response => {
+
+            if (response.vendors) {
+
+                this.setState( { customers: response.vendors } );
+
+            }
+
+        })
+
     }
 
     vendorSelected( e ) {
@@ -130,19 +149,19 @@ export default class PurchaseOrders extends Component {
 
     }
 
-    selected( name, phone, phone_ext, fax, email, cellphone ) {
+    selected( name, phone, extension, fax, email, cellphone ) {
 
-        this.setState( { contact: name, phone: `${phone} ${phone_ext ? phone_ext : ''}`, email, fax, cellphone } );
+        this.setState( { contact: name, phone, extension, email, fax, cellphone } );
 
     }
 
     save() {
 
-        const { todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, address, contact } = this.state;
+        const { todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, address, contact, extension } = this.state;
 
         const _for = this.state.for;
 
-        const data = { todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact  }
+        const data = { todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact, extension  }
 
         Authservice.savePurchaseOrders( data )
         .then( response => {
@@ -241,19 +260,24 @@ export default class PurchaseOrders extends Component {
 
                         <FormGroup row>
                             <Col md={6}>
-                                <Row>
+                            <Row>
                                     <Col>
-                                        <Label>To</Label>
-                                        <Input type="select" name="to" value={ this.state.to } onChange={ this.vendorSelected }>
-                                            <option value="">Select customer</option>
-                                            {
-                                                this.state.customers.map( c => {
+                                        <Label className="d-block">To</Label>
+                                        <div className="d-flex justify-content-between">
+                                            <Input type="select" name="to" value={ this.state.to } onChange={ this.vendorSelected }>
+                                                <option value="0">select customer</option>
+                                                {
+                                                    this.state.customers.map( c => {
 
-                                                    return <option value={c.id}>{c.vendor}</option>
+                                                        return <option value={c.id}>{c.vendor}</option>
 
-                                                })
-                                            }
-                                        </Input>
+                                                    })
+                                                }
+                                            </Input>
+                                            <div className="ml-1">
+                                                <Add icon={ faPlus } save={ this.saveVendor } />
+                                            </div>
+                                        </div>
                                     </Col>
                                 </Row>
                                 <Row className="mt-3">
@@ -292,9 +316,13 @@ export default class PurchaseOrders extends Component {
                        
 
                         <FormGroup row>
-                            <Col md={4}>
+                            <Col md={3}>
                                 <Label>Phone</Label>
                                 <Input type="text" name="phone" value={ this.state.phone } onChange={ this.changePhone } />
+                            </Col>
+                            <Col md={1}>
+                                <Label>Extension</Label>
+                                <Input type="text" name="extension" value={ this.state.extension } onChange={ this.change } />
                             </Col>
                             <Col md={4}>
                                 <Label>Fax</Label>
