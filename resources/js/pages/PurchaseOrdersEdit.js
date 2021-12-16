@@ -522,6 +522,9 @@ export default class PurchaseOrdersEdit extends Component {
                                         Quantity
                                     </th>
                                     <th>
+                                        Description
+                                    </th>
+                                    <th>
                                         Price
                                     </th>
                                     <th>
@@ -555,7 +558,7 @@ export default class PurchaseOrdersEdit extends Component {
 
                             <tfoot>
                                 <tr>
-                                    <td className="text-right" colSpan={6}>
+                                    <td className="text-right" colSpan={7}>
 
                                         <Button onClick={ this.addItem } color="success">Add Item</Button>
 
