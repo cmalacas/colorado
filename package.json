@@ -2,41 +2,45 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "npm run development -- --watch",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "npm run watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "production": "mix --production"
     },
     "devDependencies": {
         "@babel/preset-react": "^7.0.0",
-        "axios": "^0.18",
+        "axios": "^0.24.0",
         "bootstrap": "^4.1.0",
         "cross-env": "^5.1",
         "jquery": "^3.2",
-        "laravel-mix": "^4.0.7",
+        "laravel-mix": "^6.0.39",
         "lodash": "^4.17.5",
         "popper.js": "^1.12",
         "react": "^16.2.0",
         "react-dom": "^16.2.0",
-        "resolve-url-loader": "^2.3.1",
-        "sass": "^1.15.2",
+        "resolve-url-loader": "^4.0.0",
+        "sass": "^1.45.1",
         "sass-loader": "^7.1.0"
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^1.2.35",
         "@fortawesome/free-solid-svg-icons": "^5.15.3",
         "@fortawesome/react-fontawesome": "^0.1.14",
+        "node-sass": "^4.14.1",
         "react-bootstrap-table": "^4.3.1",
-        "react-bootstrap-table-next": "^4.0.3",
+        "react-bootstrap-table-next": "^1.1.0",
         "react-bootstrap-table2-editor": "^1.4.0",
         "react-redux": "^7.1.0",
         "react-router-dom": "^5.0.1",
+        "react-select": "^5.2.1",
         "reactstrap": "^8.9.0",
         "redux": "^4.0.4",
         "redux-form": "^8.2.5",
         "sweetalert2": "^11.0.18",
-        "validate.js": "^0.13.1"
+        "underscore": "^1.13.2",
+        "validate.js": "^0.13.1",
+        "webpack": "^5.65.0"
     }
 }

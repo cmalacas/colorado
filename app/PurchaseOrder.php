@@ -16,5 +16,5 @@ class PurchaseOrder extends Model
 
     public function vendor() {
         return $this->belongsTo('App\Vendor', 'to');
-    }
+    }    
 }

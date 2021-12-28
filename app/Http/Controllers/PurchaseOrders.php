@@ -332,6 +332,7 @@ class PurchaseOrders extends Controller
         $po->datereqd = $request->get('datereqd');
         $po->comments = $request->get('comments');
         $po->email = $request->get('email');
+        $po->contact = $request->get('contact');
         $po->extension = $request->get('extension');
 
         $po->save();

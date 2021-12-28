@@ -12,6 +12,9 @@ import { faCopy, faPrint, faArrowLeft, faPlus, faChevronLeft, faChevronRight } f
 
 import { Add } from './Vendors';
 
+import Select from 'react-select';
+
+
 export default class PurchaseOrdersEdit extends Component {
 
     constructor( props ) {
@@ -25,7 +28,7 @@ export default class PurchaseOrdersEdit extends Component {
             orders: [],
             contacts: [],
             todaysdate: '',
-            to: '',
+            to: 0,
             phone: '',
             extension:'',
             cellphone: '',
@@ -62,6 +65,14 @@ export default class PurchaseOrdersEdit extends Component {
         this.next = this.next.bind(this);
         this.previous = this.previous.bind(this);
         this.saveVendor = this.saveVendor.bind(this);
+        this.selectContact = this.selectContact.bind(this);
+    }
+
+    selectContact( c ) {
+
+        this.setState( { contact: c.value } );
+
+
     }
 
     saveVendor( data ) {
@@ -103,7 +114,7 @@ export default class PurchaseOrdersEdit extends Component {
 
     vendorSelected( e ) {
 
-        const to = parseInt( e.target.value );
+        const to = parseInt( e.value );
 
         const vendor = this.state.customers.filter( c => c.id === to );
 
@@ -234,7 +245,9 @@ export default class PurchaseOrdersEdit extends Component {
 
                     title: 'Success!',
                     icon: 'success',
-                    html: 'Purchase Order saved'
+                    timer: 500,
+                    timerProgressBar: true,
+                    html: 'Purchase Order saved',                    
 
                 })
 
@@ -344,6 +357,26 @@ export default class PurchaseOrdersEdit extends Component {
 
         const contacts = this.state.contacts.filter( c => c.vendor_id === to )
 
+        const options =  this.state.customers.map( c => {
+
+            return { value: c.id, label: c.vendor };
+
+        });
+
+        const contactOptions = contacts.map( c => {
+
+            return { value: c.id, label: c.name }
+
+        });
+
+        const customer = this.state.customers.filter( c => c.id === this.state.to );
+
+        const vendor = customer.length > 0 ? { value: customer[0].id, label: customer[0].vendor } : '' ;
+
+        const contact = contacts.filter( c => c.id === this.state.contact );
+
+        const contactSelected = contact.length > 0 ? { value: contact[0].id, label: contact[0].name } : '';
+        
         return (
 
             <Fragment>
@@ -423,7 +456,7 @@ export default class PurchaseOrdersEdit extends Component {
                                     <Col>
                                         <Label className="d-block">To</Label>
                                         <div className="d-flex justify-content-between">
-                                            <Input type="select" name="to" value={ this.state.to } onChange={ this.vendorSelected }>
+                                            {/* <Input type="select" name="to" value={ this.state.to } onChange={ this.vendorSelected }>
                                                 <option value="0">select customer</option>
                                                 {
                                                     this.state.customers.map( c => {
@@ -432,7 +465,15 @@ export default class PurchaseOrdersEdit extends Component {
 
                                                     })
                                                 }
-                                            </Input>
+                                            </Input> */}
+                                            <Select
+                                                className="w-100"
+                                                name="to"
+                                                defaultValue={ vendor }
+                                                value={ vendor }
+                                                options={ options }
+                                                onChange={ this.vendorSelected }
+                                            />
                                             <div className="ml-1">
                                                 <Add icon={ faPlus } save={ this.saveVendor } />
                                             </div>
@@ -452,7 +493,14 @@ export default class PurchaseOrdersEdit extends Component {
                                     <Col>
                                         <Label>Contact</Label>
                                         <div className="d-flex">
-                                            <Input type="text" name="contact" value={ this.state.contact } onChange={ this.change } />
+                                            <Select 
+                                                className="w-100"
+                                                name="contact" 
+                                                value={ contactSelected } 
+                                                defaultValue={ contactSelected } 
+                                                onChange={ this.selectContact } 
+                                                options={ contactOptions } 
+                                            />
                                             <Contact contacts={ contacts } to={ to } select={ this.selected } update={ this.updateContact } save={ this.addContact } />
                                         </div>
                                     </Col>
