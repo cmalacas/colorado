@@ -1,0 +1,1 @@
+<p style="margin-bottom:50px">Please see attachment for a copy of your packing slip</p>
