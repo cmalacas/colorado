@@ -309,7 +309,7 @@ export default class PurchaseOrdersEdit extends Component {
 
     selected( name, phone, extension, fax, email, cellphone, contact_id ) {
 
-        this.setState( { for: name, contact: contact_id, phone, extension, email, fax, cellphone } );
+        this.setState( { contact: contact_id, phone, extension, email, fax, cellphone } );
 
     }
 

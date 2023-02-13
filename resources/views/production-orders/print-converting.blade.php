@@ -131,10 +131,14 @@
 
               <p style="font-size: 12px; margin-bottom: 0px; margin-top:5px">Amount For Jets: <strong>{{ $data['AmountForJets'] }}</strong></p>
 
+              @endif
+
+              @if($data['SampleProv'])
+
               <p><h4>SAMPLE PROVIDED</h4></p>
 
-           
               @endif
+              
 
           </div>
 

@@ -202,8 +202,6 @@ export default class PurchaseOrders extends Component {
 
     save() {
 
-        console.log('save', this.state);
-
         const { todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, address, contact, extension, shipTo } = this.state;
 
         const _for = this.state.for;
