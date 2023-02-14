@@ -6,7 +6,7 @@
         <td>{{ $row->ColoEnvPO }} - {{ $counter }}</td>
         <td>{{ date("m-d-Y", strtotime($row->DateShip)) }}</td>
         <td>{{ $row->TotalShip }}</td>
-        <td>{{ html_entity_decode($row->Details) }}</td>
+        <td>{!! html_entity_decode($row->Details) !!}</td>
         <td>{{ $row->OrderStatus }}</td>
         <td>
             <a href="#" data-toggle="tooltip" title="Edit Packing Slip" data-action="edit" data-id="{{ $row->id }}" class="btn btn-success"><i class="fa fa-edit"></i></a> 

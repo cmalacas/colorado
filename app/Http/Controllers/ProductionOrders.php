@@ -1048,7 +1048,10 @@ class ProductionOrders extends Controller
 
         foreach( $documents as $d ) {
 
-            if ( file_exists( $source_path . $d->filename ) ) {
+           $exists = Storage::exists('public/pdf/' . $id);
+
+           
+            if ( $exists ) {
 
                 Storage::copy( $source_path . $d->filename, $target_path . $d->filename );
 
