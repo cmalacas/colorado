@@ -181,7 +181,7 @@
 
             @if ( $hasDateColumn )
 
-            <td style="font-size: 12px; padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $i == 0 ? $item->date : '' }}</td>
+            <td style="font-size: 12px; padding: 5px; border-bottom: solid 1px #000; border-right: solid 1px #000; text-align:center">{{ $i == 0 ? \Carbon\Carbon::parse($item->date)->format("m-d-Y") : '' }}</td>
 
             @endif
 

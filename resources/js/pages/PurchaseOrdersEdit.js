@@ -57,7 +57,11 @@ export default class PurchaseOrdersEdit extends Component {
             documents: [],
 
             activeTab: 'general',
+
+            sending: false
         }
+
+        this.mailRef = React.createRef();
 
         this.change = this.change.bind( this );
         this.addItem = this.addItem.bind( this );
@@ -84,7 +88,45 @@ export default class PurchaseOrdersEdit extends Component {
         this.upload = this.upload.bind(this);
         this.deleteDocument = this.deleteDocument.bind(this);
 
-        
+        this.send = this.send.bind(this);
+
+    }
+
+    send( data ) {
+
+        this.setState( { sending: true }, () => {
+
+            const { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, contact, address, extension, shipTo, entered } = this.state;
+
+            const _for = this.state.for;
+
+            const _data = { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact, extension, shipTo, entered }
+
+            Authservice.updatePurchaseOrders( _data )
+            .then( response => {
+
+                if (response.success) {
+
+                    Authservice.sendPurchaseOrderEmail( data )
+                    .then( response => {
+
+                        if ( response.success ) {
+
+                            this.setState( { sending: false }, () => {
+
+                                this.mailRef.current.close();
+
+                            } );
+
+                        }
+
+                    })
+
+                }
+
+            })
+
+        });
 
     }
 
@@ -229,7 +271,24 @@ export default class PurchaseOrdersEdit extends Component {
 
     print() {
 
-        window.open(`/purchase-orders/${this.state.id}/print`, 'purchaseOrders', 'width=999 height=999')
+        const { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, contact, address, extension, shipTo, entered } = this.state;
+
+        const _for = this.state.for;
+
+        const data = { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact, extension, shipTo, entered }
+
+        Authservice.updatePurchaseOrders( data )
+        .then( response => {
+
+            if (response.success) {
+
+                window.open(`/purchase-orders/${this.state.id}/print`, 'purchaseOrders', 'width=999 height=999')
+
+            }
+
+        })
+
+        
 
     }
 
@@ -377,15 +436,17 @@ export default class PurchaseOrdersEdit extends Component {
 
                 const pos = response.pos;
 
-                const productionOrders = purchase.items.map( (i,index) => {
+                let index = 1;
 
-                    i.itemNo = index + 1;
+                const productionOrders = purchase.items.map( (i) => {
+
+                    i.itemNo = index++;
 
                     return i;
 
                 });
 
-                
+                //console.log('index', index, productionOrders);
 
                 const orders = response.production_orders;
 
@@ -413,7 +474,8 @@ export default class PurchaseOrdersEdit extends Component {
                                  next,
                                  pos,
                                  documents,
-                                 entered
+                                 entered,
+                                 lastItem: index
                                 } );
 
             }
@@ -428,7 +490,17 @@ export default class PurchaseOrdersEdit extends Component {
 
         const lastItem = this.state.lastItem + 1;
 
-        const order = { itemNo: lastItem, id: 0, qty: 0, price: 0, recvd: '', date: '', description: '', action: '', production_order_id: 0 }
+        const order = { 
+                            itemNo: lastItem, 
+                            id: 0, 
+                            qty: 0, 
+                            price: 0, 
+                            recvd: '', 
+                            date: '', 
+                            description: '', 
+                            action: '', 
+                            production_order_id: 0 
+                        }
 
         productionOrders.push( order );
 
@@ -520,7 +592,12 @@ export default class PurchaseOrdersEdit extends Component {
                             <Button className="mr-1" onClick={ this.save } color="primary">Save</Button>
                             <Button data-tip="Print" onClick={ this.print } className="mr-1" color="info"><FontAwesomeIcon icon={faPrint} /></Button>
                             
-                            <Email id={ this.state.id } />
+                            <Email 
+                                ref={ this.mailRef }
+                                id={ this.state.id } 
+                                send={ this.send }
+                                sending={ this.state.sending }
+                            />
                             
                             <Button data-tip="Add New Purchase Order" onClick={ this.add } className="mr-1" color="info"><FontAwesomeIcon icon={faPlus} /></Button>
                             <Button data-tip="Back" onClick={ this.back } color="info" className="mr-1"><FontAwesomeIcon icon={faArrowLeft} /></Button>
@@ -722,15 +799,15 @@ export default class PurchaseOrdersEdit extends Component {
 
                                     <Col md={11}>
 
-                                <table className="table table-border table-striped table-hover mt-4">
+                                <table className="production-table table table-border table-striped table-hover mt-4">
 
                                     <thead>
                                         <tr>
                                             <th>
-                                                Production Order#
+                                                PO #
                                             </th>
                                             <th>
-                                                Quantity
+                                                Qty
                                             </th>
                                             <th>
                                                 Description
@@ -950,7 +1027,7 @@ class Email extends Component {
             email: '',
             message: '',
             open: false,
-            sending: false,
+            sending: props.sending,
 
         }
 
@@ -967,7 +1044,9 @@ class Email extends Component {
 
         this.setState( { sending: true }, () => {
 
-            Authservice.sendPurchaseOrderEmail( data )
+            this.props.send( data );
+
+            /* Authservice.sendPurchaseOrderEmail( data )
             .then( response => {
 
                 if ( response.success ) {
@@ -976,7 +1055,7 @@ class Email extends Component {
 
                 }
 
-            })
+            })*/
 
         } );
 
@@ -1036,7 +1115,7 @@ class Email extends Component {
 
                     </ModalBody>
                     <ModalFooter>
-                        <Button onClick={ this.save } color="success"><FontAwesomeIcon icon={faPaperPlane} /> { this.state.sending ? 'Sending, please wait... ' : 'Send' }</Button> <Button color="light" onClick={ this.close }><FontAwesomeIcon icon={faBan} /> Cancel</Button>
+                        <Button onClick={ this.save } color="success"><FontAwesomeIcon icon={faPaperPlane} /> { this.props.sending ? 'Sending, please wait... ' : 'Send' }</Button> <Button color="light" onClick={ this.close }><FontAwesomeIcon icon={faBan} /> Cancel</Button>
                     </ModalFooter>
                 </Modal>
 

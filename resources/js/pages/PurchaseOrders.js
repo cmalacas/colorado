@@ -437,15 +437,15 @@ export default class PurchaseOrders extends Component {
 
                         <Col md={11}>
 
-                        <table className="table table-border table-striped table-hover mt-4">
+                        <table className="production-table table table-border table-striped table-hover mt-4">
 
                             <thead>
                                 <tr>
                                     <th>
-                                        Production Order#
+                                        PO #
                                     </th>
                                     <th>
-                                        Quantity
+                                        Qty
                                     </th>
                                     <th>
                                         Description
@@ -1003,16 +1003,34 @@ export class ProductionOrder extends Component {
 
                 <tr>
                     <td>
-                        <Input type="textt" name="production_order_id" value={ this.state.production_order_id } onChange={ this.change } />
+                        <Input 
+                            type="textt" 
+                            name="production_order_id" 
+                            value={ this.state.production_order_id } 
+                            onChange={ this.change } 
+                            style={{ width: '70px' }}
+                        />
                     </td>
                     <td>
-                        <Input type="text" value={ this.state.qty } name="qty"  onChange={ this.change }/>
+                        <Input 
+                            type="text" 
+                            value={ this.state.qty } 
+                            name="qty"  
+                            onChange={ this.change }
+                            style={{ width: '70px' }}
+                        />
                     </td>
                     <td>
                         <Input style={ { height: this.state.height, overflowY:'hidden' } } type="textarea" name="description" value={ this.state.description } onChange={ this.updateDescription } ref={ this.DescriptionRef } />
                     </td>
                     <td>
-                        <Input type="text" value={ this.state.price } name="price" onChange={ this.change } />
+                        <Input 
+                            type="text" 
+                            value={ this.state.price } 
+                            name="price" 
+                            onChange={ this.change } 
+                            style={{ width: '115px' }}
+                        />
                     </td>
                     <td>
                         <Input type="select" value={ this.state.recvd } name="recvd" onChange={ this.change }>
@@ -1022,7 +1040,13 @@ export class ProductionOrder extends Component {
                         </Input>
                     </td>
                     <td>
-                        <Input type="date" value={ this.state.date } name="date" onChange={ this.change } />
+                        <Input 
+                            type="date" 
+                            value={ this.state.date } 
+                            name="date" 
+                            onChange={ this.change } 
+                            style={{ width: '140px' }}
+                        />
                     </td>                    
                     <td>
                         <Button onClick={ this.remove } color="danger"><FontAwesomeIcon icon={faTimes} /></Button>
