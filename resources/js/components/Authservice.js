@@ -520,6 +520,8 @@ class Authservice {
 
             const response = await Axios.post('/save-folding-schedule', data )
 
+            console.log('response', response)
+
             return response.data
 
         } catch ( error ) {
@@ -1136,11 +1138,41 @@ class Authservice {
         }
     }
 
-    async getDashboardData( data ) {
+    async saveShipping( data ) {
 
         try {
 
-            const response = await Axios.post('/get-dashboard-data', data)
+            const response = await Axios.post('/save-shipping', data)
+
+            return response.data
+
+        } catch ( error ) {
+
+            console.log(error);
+
+        }
+    }
+
+    async addShipping( data ) {
+
+        try {
+
+            const response = await Axios.post('/add-shipping', data)
+
+            return response.data
+
+        } catch ( error ) {
+
+            console.log(error);
+
+        }
+    }
+
+    async deleteShipping( data ) {
+
+        try {
+
+            const response = await Axios.post('/delete-shipping', data)
 
             return response.data
 

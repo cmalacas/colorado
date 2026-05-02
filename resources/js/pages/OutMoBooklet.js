@@ -181,16 +181,16 @@ export default class OutMoBooklet extends Component {
 
         let counter = 0;
 
-        const search = this.state.search.toString().toUpperCase().replace(/\s/g,'');
+        const search = this.state.search;
 
         const outs = this.state.data.filter( d => { 
             
-            const die_size = d.die_size ? d.die_size.toString().toUpperCase().replace(/\s/g,'') : '';
-            const sheet_size = d.sheet_size ? d.sheet_size.toString().toUpperCase().replace(/\s/g,'') : '';
-            const die_number = d.die_number ? d.die_number.toString().toUpperCase().replace(/\s/g,'') : '';
-            const number_out = d.number_out ? d.number_out.toString().toUpperCase().replace(/\s/g,'') : '';
-            const flat_size = d.flat_size ? d.flat_size.toString().toUpperCase().replace(/\s/g,'') : '';
-            const seal_flap_size = d.seal_flap_size ? d.seal_flap_size.toString().toUpperCase().replace(/\s/g,'') : '';
+            const die_size = d.die_size ? d.die_size : '';
+            const sheet_size = d.sheet_size ? d.sheet_size : '';
+            const die_number = d.die_number ? d.die_number : '';
+            const number_out = d.number_out ? d.number_out : '';
+            const flat_size = d.flat_size ? d.flat_size : '';
+            const seal_flap_size = d.seal_flap_size ? d.seal_flap_size : '';
 
             const field = this.state.field;
 
@@ -269,13 +269,13 @@ export default class OutMoBooklet extends Component {
             <Fragment>
                 <div className="row page-titles">
                     <div className="col-md-5 align-self-center">
-                        <h4 className="text-themecolor">Mo Booklet</h4>
+                        <h4 className="text-themecolor">Out Mo Booklet</h4>
                     </div>
                     <div className="col-md-7 align-self-center text-right">
                         <div className="d-flex justify-content-end align-items-center">
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
-                                <li className="breadcrumb-item active">Mo Booklet</li>
+                                <li className="breadcrumb-item active">Out Mo Booklet</li>
                             </ol>
                         
                         </div>

@@ -48,6 +48,7 @@ use App\WindowFilm;
 
 use App\Document;
 use App\ShipTo;
+use App\SalesRep;
 
 use DB;
 
@@ -71,7 +72,7 @@ class ProductionOrders extends Controller
     {
         $user = User::find(auth()->id());
 
-        $data['theads'] = ['Order No', 'Sold To', 'Contact', 'Order Date', 'PO #','Due Date', 'Quantity','Location', 'Action'];
+        $data['theads'] = ['Order No', 'Sold To', 'Contact', 'Order Date', 'PO #', 'Due Date', 'Quantity', 'Location', 'Action'];
 
         $search = ProductionOrdersSearch::where('user_id', '=', $user->id)->first();
 
@@ -84,15 +85,15 @@ class ProductionOrders extends Controller
 
             $lookin = $search->lookin;
             $match = $search->match;
-            $keywords = $search->search;
+            $keywords = addslashes($search->search);
 
-            if (in_array($lookin, ['OrderDate', 'StockDueIn', 'DateDue']) ) {
+            if (in_array($lookin, ['OrderDate', 'StockDueIn', 'DateDue'])) {
 
-                $lookin = 'DATE_FORMAT('.$lookin.', "%m-%d-%Y")';
+                $lookin = 'DATE_FORMAT(' . $lookin . ', "%m-%d-%Y")';
 
             }
 
-            if ( $lookin == 'SoldTo' ) {
+            if ($lookin == 'SoldTo') {
 
                 $lookin = 'customers.name';
 
@@ -104,8 +105,8 @@ class ProductionOrders extends Controller
 
             } else if ($match == 'any') {
 
-                $results = $results->whereRaw("UPPER(". $lookin . ") LIKE '%".strtoupper($keywords)."%'");               
-                
+                $results = $results->whereRaw("UPPER(" . $lookin . ") LIKE '%" . strtoupper($keywords) . "%'");
+
             } else {
 
                 $results = $results->whereRaw('UPPER(?) LIKE ?', [$lookin, strtoupper($keywords) . '%']);
@@ -116,7 +117,7 @@ class ProductionOrders extends Controller
 
             $results = ProductionOrder::whereRaw('Location is NULL OR Location NOT IN ("Complete")');
 
-        } 
+        }
 
         $results = $results->get();
 
@@ -126,10 +127,10 @@ class ProductionOrders extends Controller
 
         //DB::disableQueryLog();
 
-       
-        $tbody = [];       
 
-        foreach($results as $result) {
+        $tbody = [];
+
+        foreach ($results as $result) {
 
             list($year, $month, $day) = explode('-', $result->OrderDate);
 
@@ -140,13 +141,13 @@ class ProductionOrders extends Controller
 
             $tbody[] = [
                 'id' => sprintf("<a href='/production-orders/%s/edit'>%s</a>", $result->id, $result->id),
-                
+
                 'SoldTo' => $result->customer ? $result->customer->name : '',
-                
+
                 'ContactName' => $result->ContactName,
 
                 'OrderDate' => Carbon::parse($result->OrderDate)->format("m-d-Y"),
-                
+
                 'CustPO' => $result->CustPO,
 
                 'DateDue' => Carbon::parse($result->DateDue)->format("m-d-Y"),
@@ -156,19 +157,19 @@ class ProductionOrders extends Controller
                 'Location' => $result->Location,
 
                 'Action' => sprintf("%s %s %s %s", $copy, $edit, $print, $delete),
-                
+
                 'JobTitle' => $result->JobTitle,
-                
+
                 'Phone' => $result->Phone,
-                
+
                 'Email' => $result->Email,
                 'PreviousOrder' => $result->PreviousOrder,
                 'QuotedPrice' => $result->QuotedPrice,
                 'AdditionalChg' => $result->AdditionalChg,
                 'StockDueIn' => $result->StockDueIn,
-                
+
                 'PhoneExt' => $result->PhoneExt,
-                'Mobile' => $result->Mobile,                
+                'Mobile' => $result->Mobile,
                 'Fax' => $result->Fax,
                 'Machine1' => $result->Machine1,
 
@@ -176,7 +177,7 @@ class ProductionOrders extends Controller
                 'Machine3' => $result->Machine3,
                 'Machine4' => $result->Machine4,
                 'Machine5' => $result->Machine5,
-                'Machine6' => $result->Machine6,    
+                'Machine6' => $result->Machine6,
                 'QtyNeeded' => $result->QtyNeeded,
                 'OversAllow' => $result->OversAllow,
                 'Total' => $result->Total,
@@ -189,8 +190,8 @@ class ProductionOrders extends Controller
                 'WindowSz1' => $result->WindowSz1,
                 'WindowSz2' => $result->WindowSz2,
                 'WindowSz3' => $result->WindowSz3,
-                'WindowPos1' => $result->WindowPos1,            
-                'WindowPos2' => $result->WindowPos2,                            
+                'WindowPos1' => $result->WindowPos1,
+                'WindowPos2' => $result->WindowPos2,
                 'WindowPos3' => $result->WindowPos3,
                 'SealFlap' => $result->SealFlap,
 
@@ -200,7 +201,7 @@ class ProductionOrders extends Controller
                 'SpecialConvInst' => $result->SpecialConvInst,
                 'OutDiagonal' => $result->OutDiagonal,
                 'OutSide' => $result->Outside,
-                'OutCatalogEnd' => $result->OutCatalogEnd,                
+                'OutCatalogEnd' => $result->OutCatalogEnd,
                 'OutCatalogSide' => $result->OutCatalogSide,
                 'ColoEnvStock' => $result->ColoEnvStock,
                 'CustomerSupp' => $result->CustomerSupp,
@@ -210,8 +211,8 @@ class ProductionOrders extends Controller
                 'InsideTintStyle' => $result->InsideTintStyle,
                 'Sides' => $result->Sides,
                 'Colors1' => $result->Colors1,
-                'Colors2' => $result->Colors2,                
-                'Colors3' => $result->Colors3,                
+                'Colors2' => $result->Colors2,
+                'Colors3' => $result->Colors3,
                 'Colors4' => $result->Colors4,
                 'CustomerSup' => $result->CustomerSup,
                 'SpecialPrintInst' => $result->SpecialPrintInst,
@@ -220,7 +221,7 @@ class ProductionOrders extends Controller
                 'BulkAmtPerBox' => $result->BulkAmtPerBox,
                 'BulkBoxSz' => $result->BulkBoxSz,
                 'FoldingAmtPerBox' => $result->FoldingAmtPerBox,
-                'FoldingBoxSz' => $result->FoldingBoxSz,                
+                'FoldingBoxSz' => $result->FoldingBoxSz,
                 'FoldingCtnSize' => $result->FoldingCtnSize,
                 'Labeling' => $result->Labeling,
                 'MarkAs' => $result->MarkAs,
@@ -230,54 +231,54 @@ class ProductionOrders extends Controller
                 'ShipTo' => $result->ShipTo,
                 'Address1' => $result->Address1,
                 'Address2' => $result->Address2,
-                'City' => $result->City,                
+                'City' => $result->City,
                 'ST' => $result->ST,
                 'Zip' => $result->Zip,
                 'ShipAttn' => $result->ShipAttn,
                 'ShipContactPhone' => $result->ShipContactPhone,
-                'SHIPPINGINSTRUCTIONS' => $result->SHIPPINGINSTRUCTIONS, 
+                'SHIPPINGINSTRUCTIONS' => $result->SHIPPINGINSTRUCTIONS,
 
-                
+
                 'out_diagonal_die_size' => $result->out_diagonal_die_size,
                 'out_diagonal_sheet_size' => $result->out_diagonal_sheet_size,
                 'out_diagonal_number_out' => $result->out_diagonal_number_out,
                 'out_diagonal_die_number' => $result->out_diagonal_die_number,
                 'out_diagonal_seal_flap_size' => $result->out_diagonal_seal_flap_size,
-                
-                'out_mo_booklet_die_size' => $result->out_mo_booklet_die_size,	
-	            'out_mo_booklet_sheet_size' => $result->out_mo_booklet_sheet_size,
-	            'out_mo_booklet_number_out' => $result->out_mo_booklet_number_out,
-	            'out_mo_booklet_die_number' => $result->out_mo_booklet_die_number,
-	            'out_mo_booklet_flat_size' => $result->out_mo_booklet_flat_size,
-	            'out_mo_booklet_seal_flap_size' => $result->out_mo_booklet_seal_flap_size,
-	            
+
+                'out_mo_booklet_die_size' => $result->out_mo_booklet_die_size,
+                'out_mo_booklet_sheet_size' => $result->out_mo_booklet_sheet_size,
+                'out_mo_booklet_number_out' => $result->out_mo_booklet_number_out,
+                'out_mo_booklet_die_number' => $result->out_mo_booklet_die_number,
+                'out_mo_booklet_flat_size' => $result->out_mo_booklet_flat_size,
+                'out_mo_booklet_seal_flap_size' => $result->out_mo_booklet_seal_flap_size,
+
                 'out_mo_catalog_die_size' => $result->out_mo_catalog_die_size,
-	            'out_mo_catalog_sheet_size' => $result->out_mo_catalog_sheet_size,
-	            'out_mo_catalog_number_out' => $result->out_mo_catalog_number_out,
-	            'out_mo_catalog_die_number' => $result->out_mo_catalog_die_number,
-	            'out_mo_catalog_flat_size' => $result->out_mo_catalog_flat_size,
-	            'out_mo_catalog_seal_flap_size' => $result->out_mo_catalog_seal_flap_size,
-	            
+                'out_mo_catalog_sheet_size' => $result->out_mo_catalog_sheet_size,
+                'out_mo_catalog_number_out' => $result->out_mo_catalog_number_out,
+                'out_mo_catalog_die_number' => $result->out_mo_catalog_die_number,
+                'out_mo_catalog_flat_size' => $result->out_mo_catalog_flat_size,
+                'out_mo_catalog_seal_flap_size' => $result->out_mo_catalog_seal_flap_size,
+
                 'out_side_seam_die_size' => $result->out_side_seam_die_size,
-	            'out_side_seam_sheet_size' => $result->out_side_seam_sheet_size,
-	            'out_side_seam_number_out' => $result->out_side_seam_number_out,
-	            'out_side_seam_die_number' => $result->out_side_seam_die_number,
-	            'out_side_seam_flat_size' => $result->out_side_seam_flat_size,
-	        	'out_side_seam_seal_flap_size' => $result->out_side_seam_flap_size,
+                'out_side_seam_sheet_size' => $result->out_side_seam_sheet_size,
+                'out_side_seam_number_out' => $result->out_side_seam_number_out,
+                'out_side_seam_die_number' => $result->out_side_seam_die_number,
+                'out_side_seam_flat_size' => $result->out_side_seam_flat_size,
+                'out_side_seam_seal_flap_size' => $result->out_side_seam_flap_size,
 
                 'adjustable_die_size' => $result->adjustable_die_size,
-	        	'adjustable_sheet_size' => $result->adjustable_sheet_size,
-	        	'adjustable_number_out' => $result->adjustable_number_out,
-	        	'adjustable_die_number' => $result->adjustable_die_number,
-	        	'adjustable_flat_size' => $result->adjustable_flat_size,
-	        	'adjustable_seal_flap_size' => $result->adjustable_seal_flap_size,
-	        	
+                'adjustable_sheet_size' => $result->adjustable_sheet_size,
+                'adjustable_number_out' => $result->adjustable_number_out,
+                'adjustable_die_number' => $result->adjustable_die_number,
+                'adjustable_flat_size' => $result->adjustable_flat_size,
+                'adjustable_seal_flap_size' => $result->adjustable_seal_flap_size,
+
                 'web_ro_die_size' => $result->web_ro_die_size,
-	        	'web_ro_sheet_size' => $result->web_ro_sheet_size,
-	        	'web_ro_number_out' => $result->web_ro_number_out,
-	        	'web_ro_die_number' => $result->web_ro_die_number,
-	        	'web_ro_flat_size' => $result->web_ro_flat_size,
-	        	'web_ro_seal_flap_size' => $result->web_ro_seal_flap_size
+                'web_ro_sheet_size' => $result->web_ro_sheet_size,
+                'web_ro_number_out' => $result->web_ro_number_out,
+                'web_ro_die_number' => $result->web_ro_die_number,
+                'web_ro_flat_size' => $result->web_ro_flat_size,
+                'web_ro_seal_flap_size' => $result->web_ro_seal_flap_size
 
             ];
         }
@@ -307,11 +308,11 @@ class ProductionOrders extends Controller
             'Machine4' => 'Machine 4',
             'Machine5' => 'Machine 5',
             'Machine6' => 'Machine 6',
-            
+
             'QtyNeeded' => 'Quantity Needed',
             'OversAllow' => 'Overs Allowed',
             'Total' => 'Total',
-            
+
             'SizeDimension1' => 'Size 1',
             'SizeDimension2' => 'Size 2',
             'Desc' => 'Description',
@@ -320,26 +321,26 @@ class ProductionOrders extends Controller
             'WindowSz1' => 'Window Size 1',
             'WindowSz2' => 'Window Size 2',
             'WindowSz3' => 'Window Size 3',
-            'WindowPos1' => 'Window Position 1',            
-            'WindowPos2' => 'Window Position 2',            
+            'WindowPos1' => 'Window Position 1',
+            'WindowPos2' => 'Window Position 2',
             'WindowPos3' => 'Window Position 3',
-            
-            
+
+
             'SealFlap' => 'Seal Flap',
             'GumType' => 'Type of Gum',
             'AmountForJets' => 'Amount For Jets',
             'ofCopies' => '# no Copies',
             'SpecialConvInst' => 'Special Converting Instruction',
-            
+
             'OutDiagonal' => 'Out Diagonal Seam',
             'OutSide' => 'Out side Seam',
             'OutCatalogEnd' => 'MO Open-End',
             'OutCatalogSide' => 'MO Open-side',
-            
+
             'ColoEnvStock' => 'Colorado Env Stock',
-            
+
             'CustomerSupp' => 'Cusetomer Supplied',
-            
+
             'SpecialCuttingInst' => 'Special Cutting Instruction',
             'Printing' => 'Printing',
             'InsideTintStyle' => 'Style',
@@ -348,22 +349,22 @@ class ProductionOrders extends Controller
             'Colors2' => 'Color 2',
             'Colors3' => 'Color 3',
             'Colors4' => 'Color 4',
-           
+
             'CustomerSup' => 'Customer Supplied',
             'SpecialPrintInst' => 'Special Printing Instructions',
-           
+
             'BulkAmtPerCtn' => 'Amt Per Ctn',
             'BulkAmtPerBox' => 'Amt Per Box',
             'BulkBoxSz' => 'Box Size',
-            
+
             'FoldingAmtPerBox' => 'Amt Per Box (folding box)',
             'FoldingBoxSz' => 'Ctn Size',
             //'FoldingCtnSize' => 'Ctn Size',
             'Labeling' => 'Labels on Box',
-            
+
             'MarkAs' => 'Marked As',
-      
-      
+
+
             'ShipViaDetail' => 'Shipping Company',
             'Account' => 'Account #',
             'ShipTo' => 'Ship To',
@@ -375,8 +376,8 @@ class ProductionOrders extends Controller
             'ShipAttn' => 'Attn',
             'ShipContactPhone' => 'Phone',
             'SHIPPINGINSTRUCTIONS' => 'SHIPPING INSTRUCTIONS',
-            
-            
+
+
         ];
 
         $data['fields'] = $fields;
@@ -395,12 +396,12 @@ class ProductionOrders extends Controller
      */
     public function create()
     {
-        
+
         $customers = Customer::select('id', 'name')->orderBy('name')->get()->toArray();
-        
+
         $unitFigures = UnitFigure::pluck('figure')->toArray();
-        
-        $machines = Machine::where('routing','=', 1)->orderBy('machine')->pluck('machine')->toArray();
+
+        $machines = Machine::where('routing', '=', 1)->orderBy('machine')->pluck('machine')->toArray();
         $locations = Location::pluck('location')->toArray();
 
         $descriptions = Description::pluck('description')->toArray();
@@ -424,7 +425,7 @@ class ProductionOrders extends Controller
 
         $values['addCustomer'] = view('customers.form')->render();
         $values['addContact'] = view('contacts.form')->render();
-        
+
         $values['customers'] = $customers;
         $values['unitFigures'] = json_encode($unitFigures);
         $values['machines'] = json_encode($machines);
@@ -447,6 +448,7 @@ class ProductionOrders extends Controller
         $values['dieMO'] = $diesMO;
         $values['dieSeam'] = $diesSeam;
         $values['shippingDetails'] = [];
+        $values['salesreps'] = SalesRep::orderBy('name')->get();
 
         return view('production-orders.create', $values);
     }
@@ -461,12 +463,13 @@ class ProductionOrders extends Controller
     {
         $po = new ProductionOrder;
 
-        unset($_POST['id'], 
-              $_POST['_token'], 
-              $_POST['ColoEnvPO']
-            );
+        unset(
+            $_POST['id'],
+            $_POST['_token'],
+            $_POST['ColoEnvPO']
+        );
 
-        foreach($_POST as $key => $value) {
+        foreach ($_POST as $key => $value) {
             $po->{$key} = $value;
         }
 
@@ -475,31 +478,31 @@ class ProductionOrders extends Controller
         $dateStockIn = $request->get('DateStockIn');
         $dateDue = $request->get('DateDue');
 
-        
+
 
         if ($orderDate) {
 
             list($orderMonth, $orderDay, $orderYear) = explode('-', $request->get('OrderDate'));
-        
+
             $po->OrderDate = sprintf("%s-%s-%s", $orderYear, $orderMonth, $orderDay);
-        
+
 
         }
-        
+
         if ($stockDueIn) {
-        
+
             list($stockDueMonth, $stockDueDay, $stockDueYear) = explode('-', $request->get('StockDueIn'));
-        
+
             $po->StockDueIn = sprintf("%s-%s-%s", $stockDueYear, $stockDueMonth, $stockDueDay);
-        
-        } 
-        
+
+        }
+
         if ($dateStockIn) {
 
             list($dateStockMonth, $dateStockDay, $dateStockYear) = explode('-', $request->get('DateStockIn'));
-        
+
             $po->DateStockIn = sprintf("%s-%s-%s", $dateStockYear, $dateStockMonth, $dateStockDay);
-        
+
         }
 
         if ($dateDue) {
@@ -507,10 +510,10 @@ class ProductionOrders extends Controller
             list($dateDueMonth, $dateDueDay, $dateDueYear) = explode('-', $request->get('DateDue'));
 
             $po->DateDue = sprintf("%s-%s-%s", $dateDueYear, $dateDueMonth, $dateDueDay);
-        
+
         }
 
-       
+
         $po->Invoiced = isset($_POST['Invoiced']) ? 1 : 0;
         $po->SampleProv = isset($_POST['SampleProv']) ? 1 : 0;
         $po->our_stocks = isset($_POST['our_stocks']) ? 1 : 0;
@@ -629,17 +632,17 @@ class ProductionOrders extends Controller
     public function edit($id, Request $request)
     {
         $data = ProductionOrder::find($id);
-        
-        $customers = Customer::select('id', 'name')->where('status','=',1)->orderBy('name')->get()->toArray();
+
+        $customers = Customer::select('id', 'name')->where('status', '=', 1)->orderBy('name')->get()->toArray();
 
         $contacts = Contact::orderBy('name')->get();
         $shiptos = ShipTo::orderBy('shipto')->get();
-        
+
         $unitFigures = UnitFigure::pluck('figure')->toArray();
-        $machines = Machine::where('routing','=', 1)->orderBy('machine')->pluck('machine')->toArray();
+        $machines = Machine::where('routing', '=', 1)->orderBy('machine')->pluck('machine')->toArray();
         $locations = Location::pluck('location')->toArray();
         $descriptions = Description::pluck('description')->toArray();
-        
+
         $windowSizes = PanelDie::orderBy('PanelDie')->pluck('PanelDie')->toArray(); //WindowSize::pluck('size')->toArray();
 
         $openPolies = OpenPoly::pluck('openPoly')->toArray();
@@ -654,41 +657,43 @@ class ProductionOrders extends Controller
         $printing = OptionPrint::pluck('print')->toArray();
         $styles = InsideTintStyle::pluck('style')->toArray();
 
+        $salesReps = SalesRep::where('customer_id', '=', $data->CustomerId)->orderBy('name')->get();
+
         $diagonals = OutDiagonal::orderBy(DB::raw('REPLACE(die_size, " ", "")'), 'asc')
-                        ->orderBy('sheet_size', 'asc')
-                        ->orderBy('number_out', 'asc')
-                        ->get()
-                        ->toArray();
+            ->orderBy('sheet_size', 'asc')
+            ->orderBy('number_out', 'asc')
+            ->get()
+            ->toArray();
 
         $booklets = OutMoBooklet::orderBy(DB::raw('REPLACE(die_size, " ", "")'), 'asc')
-                        ->orderBy('sheet_size', 'asc')
-                        ->orderBy('number_out', 'asc')
-                        ->get()
-                        ->toArray();
+            ->orderBy('sheet_size', 'asc')
+            ->orderBy('number_out', 'asc')
+            ->get()
+            ->toArray();
 
         $catalogs = OutMoCatalog::orderBy(DB::raw('REPLACE(die_size, " ", "")'), 'asc')
-                        ->orderBy('sheet_size', 'asc')
-                        ->orderBy('number_out', 'asc')
-                        ->get()
-                        ->toArray();
+            ->orderBy('sheet_size', 'asc')
+            ->orderBy('number_out', 'asc')
+            ->get()
+            ->toArray();
 
         $outSideSeams = OutSideSeam::orderBy(DB::raw('REPLACE(die_size, " ", "")'), 'asc')
-                        ->orderBy('sheet_size', 'asc')
-                        ->orderBy('number_out', 'asc')
-                        ->get()
-                        ->toArray();
+            ->orderBy('sheet_size', 'asc')
+            ->orderBy('number_out', 'asc')
+            ->get()
+            ->toArray();
 
         $adjustables = Adjustable::orderBy(DB::raw('REPLACE(die_size, " ", "")'), 'asc')
-                        ->orderBy('sheet_size', 'asc')
-                        ->orderBy('number_out', 'asc')
-                        ->get()
-                        ->toArray();
+            ->orderBy('sheet_size', 'asc')
+            ->orderBy('number_out', 'asc')
+            ->get()
+            ->toArray();
 
         $webs = WebRa::orderBy(DB::raw('REPLACE(die_size, " ", "")'), 'asc')
-                        ->orderBy('sheet_size', 'asc')
-                        ->orderBy('number_out', 'asc')
-                        ->get()
-                        ->toArray();
+            ->orderBy('sheet_size', 'asc')
+            ->orderBy('number_out', 'asc')
+            ->get()
+            ->toArray();
 
         $films = WindowFilm::pluck('film')->toArray();
 
@@ -720,10 +725,10 @@ class ProductionOrders extends Controller
         }
 
         if ($prevResult) {
-            $previous = sprintf("<a style='display:inline-block; max-height:36px' href='/production-orders/%s/edit' class='btn btn-primary'><i class='fa fa-chevron-left'></i></a>", $prevResult->id);      
-        }    
-        
-        $options = ProductionOrder::orderBy('id')->get()->pluck('id');        
+            $previous = sprintf("<a style='display:inline-block; max-height:36px' href='/production-orders/%s/edit' class='btn btn-primary'><i class='fa fa-chevron-left'></i></a>", $prevResult->id);
+        }
+
+        $options = ProductionOrder::orderBy('id')->get()->pluck('id');
 
         list($year, $month, $day) = explode('-', $data['OrderDate']);
 
@@ -785,6 +790,8 @@ class ProductionOrders extends Controller
         $values['previous'] = $previous;
         $values['options'] = $options;
 
+        $values['salesreps'] = $salesReps;
+
         $values['tab'] = $tab;
 
         $fields = [
@@ -810,11 +817,11 @@ class ProductionOrders extends Controller
             'Machine4' => 'Machine 4',
             'Machine5' => 'Machine 5',
             'Machine6' => 'Machine 6',
-            
+
             'QtyNeeded' => 'Quantity Needed',
             'OversAllow' => 'Overs Allowed',
             'Total' => 'Total',
-            
+
             'SizeDimension1' => 'Size 1',
             'SizeDimension2' => 'Size 2',
             'Desc' => 'Description',
@@ -823,26 +830,26 @@ class ProductionOrders extends Controller
             'WindowSz1' => 'Window Size 1',
             'WindowSz2' => 'Window Size 2',
             'WindowSz3' => 'Window Size 3',
-            'WindowPos1' => 'Window Position 1',            
-            'WindowPos2' => 'Window Position 2',            
+            'WindowPos1' => 'Window Position 1',
+            'WindowPos2' => 'Window Position 2',
             'WindowPos3' => 'Window Position 3',
-            
-            
+
+
             'SealFlap' => 'Seal Flap',
             'GumType' => 'Type of Gum',
             'AmountForJets' => 'Amount For Jets',
             'ofCopies' => '# no Copies',
             'SpecialConvInst' => 'Special Converting Instruction',
-            
+
             'OutDiagonal' => 'Out Diagonal Seam',
             'OutSide' => 'Out side Seam',
             'OutCatalogEnd' => 'MO Open-End',
             'OutCatalogSide' => 'MO Open-side',
-            
+
             'ColoEnvStock' => 'Colorado Env Stock',
-            
+
             'CustomerSupp' => 'Cusetomer Supplied',
-            
+
             'SpecialCuttingInst' => 'Special Cutting Instruction',
             'Printing' => 'Printing',
             'InsideTintStyle' => 'Style',
@@ -851,22 +858,22 @@ class ProductionOrders extends Controller
             'Colors2' => 'Color 2',
             'Colors3' => 'Color 3',
             'Colors4' => 'Color 4',
-           
+
             'CustomerSup' => 'Customer Supplied',
             'SpecialPrintInst' => 'Special Printing Instructions',
-           
+
             'BulkAmtPerCtn' => 'Amt Per Ctn',
             'BulkAmtPerBox' => 'Amt Per Box',
             'BulkBoxSz' => 'Box Size',
-            
+
             'FoldingAmtPerBox' => 'Amt Per Box (folding box)',
             'FoldingBoxSz' => 'Ctn Size',
             //'FoldingCtnSize' => 'Ctn Size',
             'Labeling' => 'Labels on Box',
-            
+
             'MarkAs' => 'Marked As',
-      
-      
+
+
             'ShipViaDetail' => 'Shipping Company',
             'Account' => 'Account #',
             'ShipTo' => 'Ship To',
@@ -878,8 +885,8 @@ class ProductionOrders extends Controller
             'ShipAttn' => 'Attn',
             'ShipContactPhone' => 'Phone',
             'SHIPPINGINSTRUCTIONS' => 'SHIPPING INSTRUCTIONS',
-            
-            
+
+
         ];
 
         $data['fields'] = $fields;
@@ -903,16 +910,17 @@ class ProductionOrders extends Controller
 
         $tab = $_POST['tab'];
 
-        unset($_POST['id'], 
-              $_POST['_token'], 
-              $_POST['ColoEnvPO'],
-              $_POST['_method'],
-              $_POST['select'],
-              $_POST['tab'],
-              $_POST['packing']
-            );
+        unset(
+            $_POST['id'],
+            $_POST['_token'],
+            $_POST['ColoEnvPO'],
+            $_POST['_method'],
+            $_POST['select'],
+            $_POST['tab'],
+            $_POST['packing']
+        );
 
-        foreach($_POST as $key => $value) {            
+        foreach ($_POST as $key => $value) {
             $po->{$key} = $request->get($key);
         }
 
@@ -971,7 +979,7 @@ class ProductionOrders extends Controller
         ProductionOrder::find($id)->delete();
     }
 
-    public function print($id) 
+    public function print($id)
     {
         $data = ProductionOrder::find($id);
 
@@ -986,7 +994,7 @@ class ProductionOrders extends Controller
 
         $data = [];
 
-        foreach($company->contacts as $contact) {
+        foreach ($company->contacts as $contact) {
             $data[] = [
                 'id' => $contact->id,
                 'value' => $contact->name,
@@ -996,13 +1004,14 @@ class ProductionOrders extends Controller
                 'mobile' => $contact->mobile,
                 'fax' => $contact->fax
             ];
-        }        
+        }
 
-        return json_encode($data);        
+        return json_encode($data);
     }
 
-    public function getPackings($id) {
-        
+    public function getPackings($id)
+    {
+
         $data['results'] = PackingSlipSub::where('ColoEnvPO', '=', $id)->get();
 
         $data['html'] = view('production-orders.packing-table', $data)->render();
@@ -1011,7 +1020,8 @@ class ProductionOrders extends Controller
 
     }
 
-    public function copy($id) {
+    public function copy($id)
+    {
 
         $order = ProductionOrder::find($id);
 
@@ -1022,7 +1032,7 @@ class ProductionOrders extends Controller
         $new->Location = '';
         $new->QuotedPrice = 0;
         $new->ofCopies = '';
-        
+
         $new->OrderDate = ''; //date("Y-m-d");
         $new->CustPO = '';
         $new->AdditionalChg = '';
@@ -1035,7 +1045,7 @@ class ProductionOrders extends Controller
         $new->Email = '';
         $new->ContactName = '';
         $new->QtyNeeded = 0;
-      
+
         $new->FoldingScheduleStatus = '';
         $new->JetScheduleStatus = '';
 
@@ -1046,14 +1056,14 @@ class ProductionOrders extends Controller
 
         $source_path = 'public/pdf/' . $id . '/';
 
-        foreach( $documents as $d ) {
+        foreach ($documents as $d) {
 
-           $exists = Storage::exists('public/pdf/' . $id);
+            $exists = Storage::exists('public/pdf/' . $id);
 
-           
-            if ( $exists ) {
 
-                Storage::copy( $source_path . $d->filename, $target_path . $d->filename );
+            if ($exists) {
+
+                Storage::copy($source_path . $d->filename, $target_path . $d->filename);
 
                 $document = new Document;
 
@@ -1070,13 +1080,15 @@ class ProductionOrders extends Controller
 
     }
 
-    public function search() {
-        
+    public function search()
+    {
+
         return view('production-orders/search');
 
     }
 
-    public function reset() {
+    public function reset()
+    {
 
         ProductionOrdersSearch::where('user_id', '=', auth()->id())->delete();
 
@@ -1084,7 +1096,8 @@ class ProductionOrders extends Controller
 
     }
 
-    public function addDiagonal(Request $request) {
+    public function addDiagonal(Request $request)
+    {
 
         $diagonal = new OutDiagonal;
 
@@ -1100,7 +1113,8 @@ class ProductionOrders extends Controller
 
     }
 
-    public function addMoBooklet(Request $request) {
+    public function addMoBooklet(Request $request)
+    {
 
         $booklet = new OutMoBooklet;
 
@@ -1117,7 +1131,8 @@ class ProductionOrders extends Controller
 
     }
 
-    public function addMoCatalog(Request $request) {
+    public function addMoCatalog(Request $request)
+    {
 
         $catalog = new OutMoCatalog;
 
@@ -1134,7 +1149,8 @@ class ProductionOrders extends Controller
 
     }
 
-    public function addSideSeam(Request $request) {
+    public function addSideSeam(Request $request)
+    {
 
         $s = new OutSideSeam;
 
@@ -1151,7 +1167,8 @@ class ProductionOrders extends Controller
 
     }
 
-    public function getInfo($id) {
+    public function getInfo($id)
+    {
 
         $order = ProductionOrder::find($id);
 
@@ -1164,8 +1181,9 @@ class ProductionOrders extends Controller
         return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
     }
 
-    public function saveSchedule(Request $request) {
-   
+    public function saveSchedule(Request $request)
+    {
+
         $id = $request->get('id');
 
         $order = ProductionOrder::find($id);
@@ -1200,13 +1218,13 @@ class ProductionOrders extends Controller
         }
 
         $order->Printing = $request->get('Printing');
-        $order->Location = (string)$request->get('Location');
-        $order->FoldingScheduleStatus = (string)$request->get('FoldingScheduleStatus');
+        $order->Location = (string) $request->get('Location');
+        $order->FoldingScheduleStatus = (string) $request->get('FoldingScheduleStatus');
 
         if ($request->get('StockDueIn')) {
             $order->StockDueIn = sprintf("%s-%s-%s", $year, $month, $day);
         }
-        
+
         if ($request->has('FoldingOrder')) {
             $order->FoldingOrder = $request->get('FoldingOrder');
         }
@@ -1251,21 +1269,21 @@ class ProductionOrders extends Controller
 
             } else if ($match == 'any') {
 
-                $results = $results->whereRaw('UPPER('. $lookin . ') LIKE ?', ['%'.strtoupper($keywords) . '%']);               
-                
+                $results = $results->whereRaw('UPPER(' . $lookin . ') LIKE ?', ['%' . strtoupper($keywords) . '%']);
+
             } else {
 
                 $results = $results->whereRaw('UPPER(?) LIKE ?%', [$lookin, strtoupper($keywords)]);
 
             }
 
-        } 
+        }
 
         $results = $results->get();
 
-        $tbody = [];       
+        $tbody = [];
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
 
             list($year, $month, $day) = explode('-', $result->OrderDate);
 
@@ -1310,11 +1328,11 @@ class ProductionOrders extends Controller
             'Machine4' => 'Machine 4',
             'Machine5' => 'Machine 5',
             'Machine6' => 'Machine 6',
-            
+
             'QtyNeeded' => 'Quantity Needed',
             'OversAllow' => 'Overs Allowed',
             'Total' => 'Total',
-            
+
             'SizeDimension1' => 'Size 1',
             'SizeDimension2' => 'Size 2',
             'Desc' => 'Description',
@@ -1323,26 +1341,26 @@ class ProductionOrders extends Controller
             'WindowSz1' => 'Window Size 1',
             'WindowSz2' => 'Window Size 2',
             'WindowSz3' => 'Window Size 3',
-            'WindowPos1' => 'Window Position 1',            
-            'WindowPos2' => 'Window Position 2',            
+            'WindowPos1' => 'Window Position 1',
+            'WindowPos2' => 'Window Position 2',
             'WindowPos3' => 'Window Position 3',
-            
-            
+
+
             'SealFlap' => 'Seal Flap',
             'GumType' => 'Type of Gum',
             'AmountForJets' => 'Amount For Jets',
             'ofCopies' => '# no Copies',
             'SpecialConvInst' => 'Special Converting Instruction',
-            
+
             'OutDiagonal' => 'Out Diagonal Seam',
             'OutSide' => 'Out side Seam',
             'OutCatalogEnd' => 'MO Open-End',
             'OutCatalogSide' => 'MO Open-side',
-            
+
             'ColoEnvStock' => 'Colorado Env Stock',
-            
+
             'CustomerSupp' => 'Cusetomer Supplied',
-            
+
             'SpecialCuttingInst' => 'Special Cutting Instruction',
             'Printing' => 'Printing',
             'InsideTintStyle' => 'Style',
@@ -1351,22 +1369,22 @@ class ProductionOrders extends Controller
             'Colors2' => 'Color 2',
             'Colors3' => 'Color 3',
             'Colors4' => 'Color 4',
-           
+
             'CustomerSup' => 'Customer Supplied',
             'SpecialPrintInst' => 'Special Printing Instructions',
-           
+
             'BulkAmtPerCtn' => 'Amt Per Ctn',
             'BulkAmtPerBox' => 'Amt Per Box',
             'BulkBoxSz' => 'Box Size',
-            
+
             'FoldingAmtPerBox' => 'Amt Per Box (folding box)',
             'FoldingBoxSz' => 'Box Size (folding box)',
             'FoldingCtnSize' => 'Ctn Size',
             'Labeling' => 'Labels on Box',
-            
+
             'MarkAs' => 'Marked As',
-      
-      
+
+
             'ShipViaDetail' => 'Shipping Company',
             'Account' => 'Account #',
             'ShipTo' => 'Ship To',
@@ -1378,8 +1396,8 @@ class ProductionOrders extends Controller
             'ShipAttn' => 'Attn',
             'ShipContactPhone' => 'Phone',
             'SHIPPINGINSTRUCTIONS' => 'SHIPPING INSTRUCTIONS',
-            
-            
+
+
         ];
 
         $data['fields'] = $fields;
@@ -1399,7 +1417,7 @@ class ProductionOrders extends Controller
 
         $search = ProductionOrdersSearch::where('user_id', '=', $user->id)->first();
 
-        $results = ProductionOrder::where('Invoiced','=', 1);
+        $results = ProductionOrder::where('Invoiced', '=', 1);
 
         if ($search && $search->count() > 0) {
 
@@ -1413,21 +1431,21 @@ class ProductionOrders extends Controller
 
             } else if ($match == 'any') {
 
-                $results = $results->whereRaw('UPPER('. $lookin . ') LIKE ?', ['%'.strtoupper($keywords) . '%']);               
-                
+                $results = $results->whereRaw('UPPER(' . $lookin . ') LIKE ?', ['%' . strtoupper($keywords) . '%']);
+
             } else {
 
                 $results = $results->whereRaw('UPPER(?) LIKE ?%', [$lookin, strtoupper($keywords)]);
 
             }
 
-        } 
+        }
 
         $results = $results->get();
 
-        $tbody = [];       
+        $tbody = [];
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
 
             list($year, $month, $day) = explode('-', $result->OrderDate);
 
@@ -1472,11 +1490,11 @@ class ProductionOrders extends Controller
             'Machine4' => 'Machine 4',
             'Machine5' => 'Machine 5',
             'Machine6' => 'Machine 6',
-            
+
             'QtyNeeded' => 'Quantity Needed',
             'OversAllow' => 'Overs Allowed',
             'Total' => 'Total',
-            
+
             'SizeDimension1' => 'Size 1',
             'SizeDimension2' => 'Size 2',
             'Desc' => 'Description',
@@ -1485,26 +1503,26 @@ class ProductionOrders extends Controller
             'WindowSz1' => 'Window Size 1',
             'WindowSz2' => 'Window Size 2',
             'WindowSz3' => 'Window Size 3',
-            'WindowPos1' => 'Window Position 1',            
-            'WindowPos2' => 'Window Position 2',            
+            'WindowPos1' => 'Window Position 1',
+            'WindowPos2' => 'Window Position 2',
             'WindowPos3' => 'Window Position 3',
-            
-            
+
+
             'SealFlap' => 'Seal Flap',
             'GumType' => 'Type of Gum',
             'AmountForJets' => 'Amount For Jets',
             'ofCopies' => '# no Copies',
             'SpecialConvInst' => 'Special Converting Instruction',
-            
+
             'OutDiagonal' => 'Out Diagonal Seam',
             'OutSide' => 'Out side Seam',
             'OutCatalogEnd' => 'MO Open-End',
             'OutCatalogSide' => 'MO Open-side',
-            
+
             'ColoEnvStock' => 'Colorado Env Stock',
-            
+
             'CustomerSupp' => 'Cusetomer Supplied',
-            
+
             'SpecialCuttingInst' => 'Special Cutting Instruction',
             'Printing' => 'Printing',
             'InsideTintStyle' => 'Style',
@@ -1513,22 +1531,22 @@ class ProductionOrders extends Controller
             'Colors2' => 'Color 2',
             'Colors3' => 'Color 3',
             'Colors4' => 'Color 4',
-           
+
             'CustomerSup' => 'Customer Supplied',
             'SpecialPrintInst' => 'Special Printing Instructions',
-           
+
             'BulkAmtPerCtn' => 'Amt Per Ctn',
             'BulkAmtPerBox' => 'Amt Per Box',
             'BulkBoxSz' => 'Box Size',
-            
+
             'FoldingAmtPerBox' => 'Amt Per Box (folding box)',
             'FoldingBoxSz' => 'Box Size (folding box)',
             'FoldingCtnSize' => 'Ctn Size',
             'Labeling' => 'Labels on Box',
-            
+
             'MarkAs' => 'Marked As',
-      
-      
+
+
             'ShipViaDetail' => 'Shipping Company',
             'Account' => 'Account #',
             'ShipTo' => 'Ship To',
@@ -1540,8 +1558,8 @@ class ProductionOrders extends Controller
             'ShipAttn' => 'Attn',
             'ShipContactPhone' => 'Phone',
             'SHIPPINGINSTRUCTIONS' => 'SHIPPING INSTRUCTIONS',
-            
-            
+
+
         ];
 
         $data['fields'] = $fields;
@@ -1553,30 +1571,33 @@ class ProductionOrders extends Controller
         return view('production-orders.invoiced', $data);
     }
 
-    public function getViewSchedulesData( Request $request ) {
+    public function getViewSchedulesData(Request $request)
+    {
 
         $machines = DB::table('machines')
-                        ->select('machines.*', DB::raw('machine_masters.machine as title'), DB::raw('machine_masters.id as machine_id'))
-                        ->join('machine_masters', 'machine_masters.category', '=', 'machines.id')
-                        ->where('machine_masters.status', '=', 1)
-                        ->orderBy('machine_masters.machine')
-                        ->get();
+            ->select('machines.*', DB::raw('machine_masters.machine as title'), DB::raw('machine_masters.id as machine_id'))
+            ->join('machine_masters', 'machine_masters.category', '=', 'machines.id')
+            ->where('machine_masters.status', '=', 1)
+            ->orderBy('machine_masters.machine')
+            ->get();
 
         $results = ProductionOrder::select('production_orders.*', 'customers.name as SoldTo')
-                        ->leftJoin('customers', 'customers.id', '=', 'production_orders.CustomerId')
-                        ->whereNotIn('Location', ['Complete'])
-                        ->orderBy('FoldingOrder')
-                        ->orderBy('JetOrder')
-                        ->get();;
+            ->leftJoin('customers', 'customers.id', '=', 'production_orders.CustomerId')
+            ->whereNotIn('Location', ['Complete'])
+            ->orderBy('FoldingOrder')
+            ->orderBy('JetOrder')
+            ->get();
+        ;
 
         $data['machines'] = $machines;
         $data['results'] = $results;
 
-        return response()->json( $data, 200, [], JSON_NUMERIC_CHECK );
+        return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
 
     }
 
-    public function getDocuments( Request $request ) {
+    public function getDocuments(Request $request)
+    {
 
         $id = $request->get('id');
 
@@ -1584,17 +1605,18 @@ class ProductionOrders extends Controller
 
         $data['documents'] = $documents;
 
-        return response()->json( $data, 200, [], JSON_NUMERIC_CHECK );
+        return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
 
     }
 
-    public function upload( Request $request, $id ) {
+    public function upload(Request $request, $id)
+    {
 
         $document = $request->file('documents');
 
         $filename = $document->getClientOriginalName();
 
-        Storage::put( 'public/pdf/' . $id . '/' . $filename, file_get_contents($document->getRealPath()) );
+        Storage::put('public/pdf/' . $id . '/' . $filename, file_get_contents($document->getRealPath()));
 
         $d = new Document;
 
@@ -1607,9 +1629,10 @@ class ProductionOrders extends Controller
 
     }
 
-    public function deleteDocument( Request $request ) {
+    public function deleteDocument(Request $request)
+    {
 
-        $document = Document::find( $request->get('id') );
+        $document = Document::find($request->get('id'));
 
         $file = 'public/pdf/' . $document->production_order_id . '/' . $document->filename;
 
@@ -1617,79 +1640,80 @@ class ProductionOrders extends Controller
 
             Storage::delete($file);
 
-        } 
+        }
 
         $document->delete();
 
         return response()->json(['success' => 1]);
     }
 
-    public function dashboard() {
+    public function dashboard()
+    {
 
         $year = date("Y");
 
         $week = date("W");
 
-        $dates = $this->getWeekDays( $week, $year );
+        $dates = $this->getWeekDays($week, $year);
 
         $envelopes = ProductionOrder::select(
-                            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
-                            DB::raw('DATE_FORMAT(DateDue, "%b") as month'),
-                            DB::raw('YEAR(DateDue) as year')
-                        )
-                        ->where(DB::raw('YEAR(DateDue)'), '=', $year)
-                        ->where('QtyNeeded', '>', 0)
-                        ->orderBy('DateDue')
-                        ->groupBy(DB::RAW('MONTH(DateDue)'))
-                        ->get();
+            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
+            DB::raw('DATE_FORMAT(DateDue, "%b") as month'),
+            DB::raw('YEAR(DateDue) as year')
+        )
+            ->where(DB::raw('YEAR(DateDue)'), '=', $year)
+            ->where('QtyNeeded', '>', 0)
+            ->orderBy('DateDue')
+            ->groupBy(DB::RAW('MONTH(DateDue)'))
+            ->get();
 
         $completed = ProductionOrder::select(
-                            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
-                            DB::raw('DATE_FORMAT(DateDue, "%b") as month'),
-                            DB::raw('YEAR(DateDue) as year')
-                        )
-                        ->join('packing_slip_subs', 'packing_slip_subs.ColoEnvPo', '=', 'production_orders.id')
-                        ->where('packing_slip_subs.OrderStatus', '=', 'COMPLETE')
-                        ->where(DB::raw('YEAR(DateDue)'), '=', $year)
-                        ->where('QtyNeeded', '>', 0)
-                        ->orderBy('DateDue')
-                        ->groupBy(DB::RAW('MONTH(DateDue)'))
-                        ->get();
+            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
+            DB::raw('DATE_FORMAT(DateDue, "%b") as month'),
+            DB::raw('YEAR(DateDue) as year')
+        )
+            ->join('packing_slip_subs', 'packing_slip_subs.ColoEnvPo', '=', 'production_orders.id')
+            ->where('packing_slip_subs.OrderStatus', '=', 'COMPLETE')
+            ->where(DB::raw('YEAR(DateDue)'), '=', $year)
+            ->where('QtyNeeded', '>', 0)
+            ->orderBy('DateDue')
+            ->groupBy(DB::RAW('MONTH(DateDue)'))
+            ->get();
 
         $sales = ProductionOrder::select(
-                            DB::raw('SUM(QuotedPrice) as amount'),
-                            DB::raw('DATE_FORMAT(DateDue, "%b") as month'),
-                            DB::raw('YEAR(DateDue) as year')
-                        )
-                        ->where(DB::raw('YEAR(DateDue)'), '=', $year)
-                        ->where('QtyNeeded', '>', 0)
-                        ->orderBy('DateDue')
-                        ->groupBy(DB::RAW('MONTH(DateDue)'))
-                        ->get();
+            DB::raw('SUM(QuotedPrice) as amount'),
+            DB::raw('DATE_FORMAT(DateDue, "%b") as month'),
+            DB::raw('YEAR(DateDue) as year')
+        )
+            ->where(DB::raw('YEAR(DateDue)'), '=', $year)
+            ->where('QtyNeeded', '>', 0)
+            ->orderBy('DateDue')
+            ->groupBy(DB::RAW('MONTH(DateDue)'))
+            ->get();
 
         $weeks = ProductionOrder::select(
-                            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
-                            DB::raw('DATE_FORMAT(DateDue, "%a") as day'),
-                            DB::raw('YEAR(DateDue) as year')
-                        )
-                        ->whereIn('DateDue', $dates)
-                        ->where('QtyNeeded', '>', 0)
-                        ->orderBy('DateDue')
-                        ->groupBy(DB::RAW('DateDue'))
-                        ->get();
+            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
+            DB::raw('DATE_FORMAT(DateDue, "%a") as day'),
+            DB::raw('YEAR(DateDue) as year')
+        )
+            ->whereIn('DateDue', $dates)
+            ->where('QtyNeeded', '>', 0)
+            ->orderBy('DateDue')
+            ->groupBy(DB::RAW('DateDue'))
+            ->get();
 
         $completedThisWeek = ProductionOrder::select(
-                                DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
-                                DB::raw('DATE_FORMAT(DateDue, "%a") as day'),
-                                DB::raw('YEAR(DateDue) as year')
-                            )
-                            ->join('packing_slip_subs', 'packing_slip_subs.ColoEnvPo', '=', 'production_orders.id')
-                            ->whereIn('DateDue', $dates)
-                            ->where('QtyNeeded', '>', 0)
-                            ->where('packing_slip_subs.OrderStatus', '=', 'COMPLETE')
-                            ->orderBy('DateDue')                            
-                            ->groupBy(DB::RAW('DateDue'))
-                            ->get();
+            DB::raw('SUM(QtyNeeded + (QtyNeeded * OversAllow / 100 ))  as quantity'),
+            DB::raw('DATE_FORMAT(DateDue, "%a") as day'),
+            DB::raw('YEAR(DateDue) as year')
+        )
+            ->join('packing_slip_subs', 'packing_slip_subs.ColoEnvPo', '=', 'production_orders.id')
+            ->whereIn('DateDue', $dates)
+            ->where('QtyNeeded', '>', 0)
+            ->where('packing_slip_subs.OrderStatus', '=', 'COMPLETE')
+            ->orderBy('DateDue')
+            ->groupBy(DB::RAW('DateDue'))
+            ->get();
 
         $data['envelopes'] = $envelopes;
         $data['weeks'] = $weeks;
@@ -1700,41 +1724,42 @@ class ProductionOrders extends Controller
         $data['completed'] = $completed;
         $data['completedThisWeek'] = $completedThisWeek;
 
-        return response()->json( $data, 200, [], JSON_NUMERIC_CHECK );
+        return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
 
     }
 
-    private function getWeekDays($week, $year) {
-        
+    private function getWeekDays($week, $year)
+    {
+
         $dates = [];
 
         $user = User::find(auth()->id());
-      
+
         $now = time();
 
-        $jan1 = strtotime( "January 1 " . $year );
+        $jan1 = strtotime("January 1 " . $year);
 
-        if ( date("w", $jan1) == 0) {
+        if (date("w", $jan1) == 0) {
 
-            $current = date("Y-m-d", strtotime( "January 1 " . $year. " + " . (int)($week - 1) . " Week") );
+            $current = date("Y-m-d", strtotime("January 1 " . $year . " + " . (int) ($week - 1) . " Week"));
 
         } else {
 
-            $current = date("Y-m-d", strtotime( "January 1 " . $year. " + " . (int)($week) . " Week") );
+            $current = date("Y-m-d", strtotime("January 1 " . $year . " + " . (int) ($week) . " Week"));
 
         }
 
-        $base_mon = $this->getBaseSunday( $current );
+        $base_mon = $this->getBaseSunday($current);
 
         $ts_ref = $base_mon;
-        
-        for($i=0; $i< 7; $i += 1) {
+
+        for ($i = 0; $i < 7; $i += 1) {
 
             $ts = strtotime("+ $i day", $ts_ref);
 
             $dates[] = date("Y-m-d", $ts);
 
-            
+
         }
 
         //print_r($headers);
@@ -1742,11 +1767,12 @@ class ProductionOrders extends Controller
         return $dates;
     }
 
-    private function getBaseSunday( $date ) {
+    private function getBaseSunday($date)
+    {
 
-        $date_ts = $this->getTimeStamp( $date );
+        $date_ts = $this->getTimeStamp($date);
 
-        $isSunday = $this->isSunday( $date_ts );
+        $isSunday = $this->isSunday($date_ts);
 
         if ($isSunday) {
 
@@ -1760,15 +1786,16 @@ class ProductionOrders extends Controller
 
     }
 
-    private function isSunday( $date_ts ) {
+    private function isSunday($date_ts)
+    {
 
-        $ref = (int)date("w", $date_ts);
+        $ref = (int) date("w", $date_ts);
 
         if ($ref == 0) {
 
             return true;
 
-        }  else {
+        } else {
 
             return false;
 
@@ -1776,34 +1803,36 @@ class ProductionOrders extends Controller
 
     }
 
-    private function getTimeStamp( $date ) {
+    private function getTimeStamp($date)
+    {
 
         list($y, $m, $d) = explode('-', $date);
 
-        return mktime(0,0,0, (int)$m, (int)$d, $y);
+        return mktime(0, 0, 0, (int) $m, (int) $d, $y);
 
     }
 
-    public function getShipTo( Request $request ) {
+    public function getShipTo(Request $request)
+    {
 
-        $customer = Customer::find( $request->get('SoldTo') );
+        $customer = Customer::find($request->get('SoldTo'));
 
         $data = [];
 
-        foreach( $customer->shiptos as $s) {
+        foreach ($customer->shiptos as $s) {
 
             $data[] = [
-                        'id' => $s->id,
-                        'shipto' => $s->shipto,
-                        'value' => $s->shipto,
-                        'address1' => $s->address1,
-                        'address2' => $s->address2,
-                        'city' => $s->city,
-                        'state' => $s->state,
-                        'zip' => $s->zip,
-                        'attn' => $s->attn,
-                        'phone' => $s->phone
-                    ];
+                'id' => $s->id,
+                'shipto' => $s->shipto,
+                'value' => $s->shipto,
+                'address1' => $s->address1,
+                'address2' => $s->address2,
+                'city' => $s->city,
+                'state' => $s->state,
+                'zip' => $s->zip,
+                'attn' => $s->attn,
+                'phone' => $s->phone
+            ];
 
         }
 

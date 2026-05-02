@@ -110,10 +110,10 @@ File: scss
     background-color: rgba(255, 255, 255, 0.2);
 }
 @media (min-width: 768px) {
-    .skin-default-dark.mini-sidebar .sidebar-nav #sidebarnav > li > ul,
+    /* .skin-default-dark.mini-sidebar .sidebar-nav #sidebarnav > li > ul,
     .skin-default-dark.mini-sidebar .sidebar-nav #sidebarnav > li:hover > a {
         background: #1f2023;
-    }
+    }*/
 }
 
 /*!
@@ -3550,7 +3550,7 @@ input[type="button"].btn-block {
 }
 
 .collapse {
-    display: none;
+    
 }
 .collapse.show {
     display: block;
@@ -16051,8 +16051,13 @@ table.dataTable tbody td {
 .react-bootstrap-table table tr td {
     text-overflow: ellipsis;
     overflow: hidden;
-    overflow-x: auto;
+    overflow-x: hidden;
     padding: 1rem 5px;
+}
+
+.react-bootstrap-table table.collapse tr td {
+    line-height: 0;
+    white-space: nowrap;
 }
 
 .react-bootstrap-table table tr td select {

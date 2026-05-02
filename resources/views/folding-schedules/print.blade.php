@@ -56,13 +56,15 @@
                         $machine->machine == 'RA-2' || 
                         $machine->machine == 'RA-3' || 
                         $machine->machine == 'RA-WEB'  ||
-                        $machine->machine == 'RO-WEB' ||
-                        $machine->machine == 'WR-1' ||
+                        $machine->machine == 'RO-1' ||
+                        $machine->machine == 'RO-3' ||
                         $machine->machine == 'WR-2' ||
                         $machine->machine == 'WR-3' ||
-                        $machine->machine == 'MO' ||
+                        $machine->machine == 'RO-2' ||
                         $machine->machine == 'MOW' ||
-                        $machine->machine == 'Straight Knife'
+                        $machine->machine == 'Straight Knife' ||
+                        $machine->machine == '3-inch Jet' ||
+                        $machine->machine == '4-color Jet'
                     )
 
                     
@@ -78,7 +80,7 @@
                 @elseif (
 
                     $machine->machine == 'Super Jet 1' ||
-                    $machine->machine == 'Super Jet 2'
+                    $machine->machine == 'Super Jet 2' 
 
                 )
 

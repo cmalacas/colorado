@@ -991,7 +991,14 @@ class FoldingSchedulesController extends Controller
 
             case 'Latex / PS':
 
-                $results = $results->whereRaw('(Location = "8 Latex/PS" OR Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS")')
+                /* $results = $results->whereRaw('(Location = "8 Latex/PS" OR Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS")')
+                                   ->orderBy('FoldingOrder'); */
+
+                // $results = $results->whereRaw('(Location NOT IN  ("Complete") AND (Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS"))')
+                //                   ->orderBy('LatexPSFoldingOrder');
+
+                $results = $results->whereNotIn('Location', ['Complete'])
+                                   ->whereRaw('(Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS" OR FoldingScheduleStatus LIKE "%Latex / PS%")')
                                    ->orderBy('FoldingOrder');
 
             break;
@@ -1020,6 +1027,14 @@ class FoldingSchedulesController extends Controller
 
             break;
 
+            case 'RO-1':
+
+                $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
+                                ->whereRaw('FoldingScheduleStatus LIKE "RO-1"')
+                                ->orderBy('FoldingOrder'); 
+
+            break;
+
             case 'RA-WEB':
 
                 $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
@@ -1028,18 +1043,10 @@ class FoldingSchedulesController extends Controller
 
             break;
 
-            case 'RO-WEB':
+            case 'RO-3':
 
                 $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
-                                ->whereRaw('FoldingScheduleStatus LIKE "%RO-WEB"')
-                                ->orderBy('FoldingOrder'); 
-
-            break;
-
-            case 'WR-1':
-
-                $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
-                                ->whereRaw('FoldingScheduleStatus LIKE "%WR-1"')
+                                ->whereRaw('FoldingScheduleStatus LIKE "RO-3"')
                                 ->orderBy('FoldingOrder'); 
 
             break;
@@ -1060,11 +1067,15 @@ class FoldingSchedulesController extends Controller
 
             break;
 
-            case 'MO':
+            case 'RO-2':
 
                 $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
-                                ->where('FoldingScheduleStatus', '=', '7. MO')
+                                ->whereRaw('FoldingScheduleStatus LIKE "RO-2"')
                                 ->orderBy('FoldingOrder'); 
+
+                /*$results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
+                                ->where('FoldingScheduleStatus', '=', '7. MO')
+                                ->orderBy('FoldingOrder'); */
 
             break;
 
@@ -1124,6 +1135,22 @@ class FoldingSchedulesController extends Controller
 
             break;
 
+            case '3-inch Jet':
+
+                $results = $results->whereNotIn('Location', ['Complete'])
+                                ->whereRaw("(FoldingScheduleStatus = '3-inch Jet' OR JetScheduleStatus = '3-inch Jet')")
+                                ->orderBy('JetOrder'); 
+
+            break;
+
+            case '4-color Jet':
+
+                $results = $results->whereNotIn('Location', ['Complete'])
+                                ->whereRaw("(FoldingScheduleStatus = '4-color Jet' OR JetScheduleStatus = '4-color Jet')")
+                                ->orderBy('JetOrder'); 
+
+            break;
+
             case 'Straight Knife':
 
                 $results = $results->whereNotIn('Location', ['Complete'])
@@ -1137,6 +1164,7 @@ class FoldingSchedulesController extends Controller
 
         $results = $results->get();
 
+       
         $customers = Customer::select('id', 'name')->orderBy('name')->get()->toArray();
         $descriptions = Description::orderBy('description')->get()->toArray();
         $printings = OptionPrint::orderBy('print')->get()->toArray();
@@ -1161,13 +1189,15 @@ class FoldingSchedulesController extends Controller
             case 'RA-2':
             case 'RA-3':
             case 'RA-WEB':
-            case 'RO-WEB':
-            case 'WR-1':
+            case 'RO-1':
+            case 'RO-3':
             case 'WR-2':
             case 'WR-3':
-            case 'MO':
+            case 'RO-2':
             case 'MOW':
             case 'Straight Knife':
+            case '3-inch Jet':
+            case '4-color Jet':
 
                 //$columns[] = 'Due';
                 $columns[] = 'Prg';
@@ -1226,8 +1256,12 @@ class FoldingSchedulesController extends Controller
 
             case 'Latex / PS':
 
-                $results = $results->whereRaw('(Location NOT IN  ("Complete") AND (Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS"))')
-                                   ->orderBy('LatexPSFoldingOrder');
+                /* $results = $results->whereRaw('(Location NOT IN  ("Complete") AND (Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS"))')
+                                   ->orderBy('LatexPSFoldingOrder'); */
+
+                $results = $results->whereNotIn('Location', ['Complete'])
+                                   ->whereRaw('(Machine1 = "Latex / PS" OR Machine2 = "Latex / PS" OR Machine3 = "Latex / PS" OR Machine4 = "Latex / PS" OR Machine5 = "Latex / PS" OR Machine6 = "Latex / PS" OR JetScheduleStatus LIKE "%Latex / PS%")')
+                                   ->orderBy('FoldingOrder');
 
             break;
 
@@ -1263,18 +1297,18 @@ class FoldingSchedulesController extends Controller
 
             break;
 
-            case 'RO-WEB':
+            case 'RO-1':
 
                 $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
-                                ->whereRaw('FoldingScheduleStatus LIKE "%RO-WEB%"')
+                                ->whereRaw('FoldingScheduleStatus LIKE "%RO-1%"')
                                 ->orderBy('FoldingOrder'); 
 
             break;
 
-            case 'WR-1':
+            case 'RO-3':
 
                 $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
-                                ->whereRaw('FoldingScheduleStatus LIKE "%WR-1%"')
+                                ->whereRaw('FoldingScheduleStatus LIKE "%RO-3%"')
                                 ->orderBy('FoldingOrder'); 
 
             break;
@@ -1295,10 +1329,10 @@ class FoldingSchedulesController extends Controller
 
             break;
 
-            case 'MO':
+            case 'RO-2':
 
                 $results = $results->whereNotIn('Location', ['Complete', '6 Jet'])
-                                ->whereRaw('FoldingScheduleStatus LIKE "%MO"')
+                                ->whereRaw('FoldingScheduleStatus LIKE "%RO-2"')
                                 ->orderBy('FoldingOrder'); 
 
             break;
@@ -1355,6 +1389,22 @@ class FoldingSchedulesController extends Controller
 
                 $results = $results->whereNotIn('Location', ['Complete'])
                                 ->where('JetScheduleStatus', 'Super Jet 2')
+                                ->orderBy('JetOrder'); 
+
+            break;
+
+            case '3-inch Jet':
+
+                $results = $results->whereNotIn('Location', ['Complete', '8 Latex/PS'])
+                                ->whereRaw("(JetScheduleStatus = '3-inch Jet')")
+                                ->orderBy('JetOrder'); 
+
+            break;
+
+            case '4-color Jet':
+
+                $results = $results->whereNotIn('Location', ['Complete', '8 Latex/PS'])
+                                ->whereRaw("(JetScheduleStatus = '4-color Jet')")
                                 ->orderBy('JetOrder'); 
 
             break;

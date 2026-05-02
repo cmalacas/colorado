@@ -6,11 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    public function contacts() {
+    public function contacts()
+    {
         return $this->hasMany('App\Contact', 'customer_id');
     }
 
-    public function shiptos() {
+    public function shiptos()
+    {
         return $this->hasMany('App\ShipTo', 'customer_id');
     }
+
+    public function salesreps()
+    {
+        return $this->hasMany('App\SalesRep', 'customer_id');
+    }
+
 }

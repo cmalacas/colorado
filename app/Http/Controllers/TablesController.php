@@ -1034,7 +1034,17 @@ class TablesController extends Controller
                     ->where(DB::raw('machine_masters.status'), '=', 1)
                     ->whereRaw('machine_masters.machine IN ("RA-1", "RA-2", "RA-3")')
                     ->get();    
-         
+        
+        $ro = MachineMaster::select(
+                        DB::raw('machine_masters.*'),
+                        DB::raw('machines.machine as machine_category')
+                    )
+                    ->join('machines', 'machines.id', '=', 'machine_masters.category')
+                    ->orderBy(DB::raw('machine_masters.machine'))
+                    ->where(DB::raw('machine_masters.status'), '=', 1)
+                    ->whereRaw('machine_masters.machine IN ("RO-1", "RO-2", "RO-3")')
+                    ->get();           
+
         $mo = MachineMaster::select(
                         DB::raw('machine_masters.*'),
                         DB::raw('machines.machine as machine_category')
@@ -1042,7 +1052,7 @@ class TablesController extends Controller
                     ->join('machines', 'machines.id', '=', 'machine_masters.category')
                     ->orderBy(DB::raw('machine_masters.machine'))
                     ->where(DB::raw('machine_masters.status'), '=', 1)
-                    ->whereRaw('(machines.machine = "MOW" OR machines.machine = "MO" )')
+                    ->whereRaw('(machines.machine = "MOW" )')
                     ->get();
 
         $latex = MachineMaster::select(
@@ -1062,7 +1072,7 @@ class TablesController extends Controller
                     ->join('machines', 'machines.id', '=', 'machine_masters.category')
                     ->orderBy(DB::raw('machine_masters.machine'))
                     ->where(DB::raw('machine_masters.status'), '=', 1)
-                    ->where(DB::raw('machines.machine'), '=', 'WR')
+                    ->where(DB::raw('machines.machine'), '=', 'xxx')
                     ->get();
 
         $web = MachineMaster::select(
@@ -1078,6 +1088,7 @@ class TablesController extends Controller
         $data = [
             'jet' => $jet,
             'ra' => $ra,
+            'ro' => $ro,
             'mo' => $mo,
             'wr' => $wr,
             'web' => $web,

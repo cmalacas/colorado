@@ -32,8 +32,10 @@ class PurchaseOrderMail extends Mailable
      */
     public function build()
     {
+
         $mail =  $this->view('purchase-orders.mail', $this->data )
                       ->from( $this->fromMail, $this->fromName )
+                      ->replyTo( $this->fromMail )
                       ->subject('COLORADO ENVELOPE PURCHASE ORDER');
 
 

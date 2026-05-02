@@ -7,8 +7,10 @@ import cellEditFactory, { Type } from 'react-bootstrap-table2-editor';
 
 import Authservice from '../components/Authservice';
 
-import { Row, Col, Button } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExpand } from '@fortawesome/free-solid-svg-icons';
 
+import {Row, Col, Card, Button, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Input, Label} from 'reactstrap';
 export default class FolidngUnscheduled extends Component {
 
     constructor( props ) {
@@ -23,17 +25,19 @@ export default class FolidngUnscheduled extends Component {
             printings: [],
             locations: [],
             statuses: [],
-            rowStatus: 'collapse'
+
+            collapse: true
         }
 
         this.getData = this.getData.bind( this );
         this.save = this.save.bind( this );
-        this.expand = this.expand.bind( this );
+        this.doExpandCollapse = this.doExpandCollapse.bind( this );
+
     }
 
-    expand() {
+    doExpandCollapse() {
 
-        this.setState( { rowStatus: this.state.rowStatus === 'collapse' ? 'expand' : 'collapse' } );
+        this.setState({ collapse: !this.state.collapse } );
 
     }
 
@@ -135,12 +139,9 @@ export default class FolidngUnscheduled extends Component {
             {   
                 dataField:'id',
                 text: 'Job #',
-                style: () => {
-                    return { height: '30px' } 
-                },
-                formatter: (cell, row) => {
+                formatter: (cell) => {
 
-                    return <a href={`/production-orders/${row.id}/edit`} target="_blank">{cell}</a>
+                    return <a href={`/production-orders/${cell}/edit`}>{cell}</a>
 
                 }
             },
@@ -230,8 +231,6 @@ export default class FolidngUnscheduled extends Component {
             },
         ];
 
-        const rowStyle = { height: '30px', overflow: 'hidden' }
-
         return (
 
             <Fragment>
@@ -246,25 +245,26 @@ export default class FolidngUnscheduled extends Component {
                                 <li className="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
                                 <li className="breadcrumb-item active">Converting Unscheduled</li>
                             </ol>
-                       
+                        
                         </div>
                     </div>
                 </div>
 
                 <Row className="mb-2">
                     <Col className="text-right">
-                        <Button onClick={ this.expand } color="info" className="mr-1">Expand / Collapse</Button>
-                        
+                        <Button onClick={ this.doExpandCollapse } className="ml-1" color="info"><FontAwesomeIcon icon={faExpand} /> Expand / Collapse</Button>
                     </Col>
-                </Row>
+                </Row>  
 
                 <BootstrapTable 
                     keyField='id' 
                     columns={ columns } 
                     cellEdit={ cellEditFactory({ mode: 'click', blurToSave: true, afterSaveCell : this.save }) }
-                    classes={ this.state.rowStatus === 'collapse' ? 'table-single-liner' : '' }
-                    rowStyle={ rowStyle }
-                    data={ data } striped hover />
+                    data={ data } 
+                    striped 
+                    hover 
+                    classes={ this.state.collapse ? 'collapse' : 'expand'}
+                />
 
             </Fragment>
 

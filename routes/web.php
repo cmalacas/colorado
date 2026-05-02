@@ -12,11 +12,11 @@
 */
 
 Auth::routes();
-Route::get('/', function() {
-    return view('layouts.plane');  
+Route::get('/', function () {
+    return view('layouts.plane');
 });
-Route::get('/home', function() {
-    return view('layouts.plane');  
+Route::get('/home', function () {
+    return view('layouts.plane');
 });
 
 Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
@@ -29,8 +29,8 @@ Route::post('/production-orders/addmocatalog', 'ProductionOrders@addMoCatalog');
 Route::post('/production-orders/addmobooklet', 'ProductionOrders@addMoBooklet');
 Route::post('/production-orders/addsideseam', 'ProductionOrders@addSideSeam');
 
-Route::get('/view-schedules', function() {
-    return view('layouts.plane');  
+Route::get('/view-schedules', function () {
+    return view('layouts.plane');
 });
 
 Route::post('/production-orders/getcontacts', 'ProductionOrders@getContacts');
@@ -45,7 +45,7 @@ Route::get('/production-orders/reset', 'ProductionOrders@reset');
 
 Route::get('/customers/{id}/hide', 'CustomersController@hide');
 
-Route::get('/double-die/show-all',  'DoubleDiesController@show_all');
+Route::get('/double-die/show-all', 'DoubleDiesController@show_all');
 
 Route::get('/production-orders/search', 'ProductionOrders@search');
 
@@ -82,7 +82,7 @@ Route::get('/invoiced', 'ProductionOrders@invoiced');
 
 
 Route::post('/production-orders/save-schedule', 'ProductionOrders@saveSchedule');
-Route::post('/production-orders/save-schedule-ajax','ProductionOrders@saveScheduleAjax');
+Route::post('/production-orders/save-schedule-ajax', 'ProductionOrders@saveScheduleAjax');
 
 
 
@@ -140,53 +140,53 @@ Route::post('/delete-document', 'ProductionOrders@deleteDocument');
 
 Route::post('/delete-customer', 'CustomersController@delete');
 
-Route::get('/tables/out-diagonals', function() {
-    return view('layouts.plane');  
+Route::get('/tables/out-diagonals', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/tables/adjustable', function() {
-    return view('layouts.plane');  
+Route::get('/tables/adjustable', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/tables/web-ra', function() {
-    return view('layouts.plane');  
+Route::get('/tables/web-ra', function () {
+    return view('layouts.plane');
 });
 
 
-Route::get('/tables/out-mo-booklet', function() {
-    return view('layouts.plane');  
+Route::get('/tables/out-mo-booklet', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/tables/out-mo-catalog', function() {
-    return view('layouts.plane');  
+Route::get('/tables/out-mo-catalog', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/tables/out-side-seam', function() {
-    return view('layouts.plane');  
+Route::get('/tables/out-side-seam', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/tables/machines', function() {
-    return view('layouts.plane');  
+Route::get('/tables/machines', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/tables/locations', function() {
-    return view('layouts.plane');  
+Route::get('/tables/locations', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/folding-schedule/unscheduled', function() {
-    return view('layouts.plane');  
+Route::get('/folding-schedule/unscheduled', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/latex-ps/unscheduled', function() {
-    return view('layouts.plane');  
+Route::get('/latex-ps/unscheduled', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/jet-schedule/unscheduled', function() {
-    return view('layouts.plane');  
+Route::get('/jet-schedule/unscheduled', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/straightknife/unscheduled', function() {
-    return view('layouts.plane');  
+Route::get('/straightknife/unscheduled', function () {
+    return view('layouts.plane');
 });
 
 Route::resource('folding-schedule', 'FoldingSchedulesController');
@@ -206,8 +206,8 @@ Route::get('/folding-schedule/wr-1', 'FoldingSchedulesController@wr1');
 Route::get('/folding-schedule/wr-2', 'FoldingSchedulesController@wr2');
 Route::get('/folding-schedule/wr-3', 'FoldingSchedulesController@wr3');
 
-Route::get('/folding-schedule/{id}', function() {
-    return view('layouts.plane');  
+Route::get('/folding-schedule/{id}', function () {
+    return view('layouts.plane');
 });
 
 Route::post('/tables/add-location', 'TablesController@addLocation');
@@ -346,37 +346,47 @@ Route::post('/send-purchase-order-email', 'PurchaseOrders@send');
 
 Route::get('/not-entered', 'PurchaseOrders@notEntered');
 
+Route::post('/get-sales-reps', 'SalesRepsController@get');
+
+Route::post('/save-sales-reps', 'SalesRepsController@save');
+
 Route::post('/get-dashboard-data', 'ProductionOrders@dashboard');
 
-Route::get('/straightknife', function() {
-    return view('layouts.plane');  
+Route::post('/save-shipping', 'CustomersController@saveShipping');
+
+Route::post('/add-shipping', 'CustomersController@addShipping');
+
+Route::post('/delete-shipping', 'CustomersController@deleteShipping');
+
+Route::get('/straightknife', function () {
+    return view('layouts.plane');
 });
 
-Route::get('/purchase-orders/create', function() {
+Route::get('/purchase-orders/create', function () {
 
     return view('layouts.plane');
 
 });
 
-Route::get('/purchase-orders/{id}/edit', function() {
+Route::get('/purchase-orders/{id}/edit', function () {
 
     return view('layouts.plane');
 
 });
 
-Route::get('/open-schedule/{id}', function() {
+Route::get('/open-schedule/{id}', function () {
 
     return view('schedule');
 
 });
 
-Route::get('/customers-list', function() {
+Route::get('/customers-list', function () {
 
     return view('layouts.plane');
 
 });
 
-Route::get('/vendors', function() {
+Route::get('/vendors', function () {
 
     return view('layouts.plane');
 

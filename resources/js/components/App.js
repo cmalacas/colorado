@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, withRouter } from "react-router-dom";
+import { connect } from 'react-redux';
 
 import OutDiagonals from '../pages/OutDiagonals';
 import OutMoBooklet from '../pages/OutMoBooklet';
@@ -21,7 +22,6 @@ import Customers from '../pages/Customers';
 import Vendors from '../pages/Vendors';
 import Adjustable from '../pages/Adjustable';
 import WebRa from '../pages/WebRa';
-import Dashboard from '../pages/Dashboard';
 
 export default class App extends Component {
 
@@ -32,9 +32,6 @@ export default class App extends Component {
             <Router>
 
                 <Switch>
-
-                    <Route path="/" exact component={Dashboard} />
-                    <Route path="/home" exact component={Dashboard} />
 
                     <Route path="/tables/out-diagonals" component={OutDiagonals} />
                     <Route path="/tables/out-mo-booklet" component={OutMoBooklet} />
@@ -76,3 +73,4 @@ export default class App extends Component {
     }
 
 }
+

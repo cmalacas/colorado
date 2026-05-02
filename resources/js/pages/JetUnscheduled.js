@@ -5,7 +5,7 @@ import {Row, Col, Card, Button, CardBody, Modal, ModalHeader, ModalBody, ModalFo
 import { buildTable, Pager } from '../components/Functions';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faSave, faBan, faEdit, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faExpand } from '@fortawesome/free-solid-svg-icons';
 
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -31,18 +31,18 @@ export default class JetUnscheduled extends Component {
             locations: [],
             statuses: [],
 
-            rowStatus: 'collapse'
+            collapse: true
 
         }
 
         this.getData = this.getData.bind( this );
         this.save = this.save.bind( this );
-        this.expand = this.expand.bind(this);
+        this.doExpandCollapse = this.doExpandCollapse.bind( this );
     }
 
-    expand() {
+    doExpandCollapse() {
 
-        this.setState( { rowStatus: this.state.rowStatus === 'collapse' ? 'expand' : 'collapse' } );
+        this.setState({ collapse: !this.state.collapse } );
 
     }
 
@@ -144,7 +144,12 @@ export default class JetUnscheduled extends Component {
         const columns = [
             {   
                 dataField:'id',
-                text: 'Job #'
+                text: 'Job #',
+                formatter: (cell) => {
+
+                    return <a href={`/production-orders/${cell}/edit`}>{cell}</a>
+
+                }
             },
             {   
                 dataField:'customer_id',
@@ -260,17 +265,20 @@ export default class JetUnscheduled extends Component {
 
                 <Row className="mb-2">
                     <Col className="text-right">
-                        <Button onClick={ this.expand } color="info" className="mr-1">Expand / Collapse</Button>
-                        
+                        <Button onClick={ this.doExpandCollapse } className="ml-1" color="info"><FontAwesomeIcon icon={faExpand} /> Expand / Collapse</Button>
                     </Col>
-                </Row>
+                </Row>  
+                
 
                 <BootstrapTable 
                     keyField='id' 
                     columns={ columns } 
                     cellEdit={ cellEditFactory({ mode: 'click', blurToSave: true, afterSaveCell : this.save }) }
-                    classes={ this.state.rowStatus === 'collapse' ? 'table-single-liner' : '' }
-                    data={ data } striped hover />
+                    data={ data } 
+                    striped 
+                    hover 
+                    classes={ this.state.collapse ? 'collapse' : 'expand'}
+                />
 
             </Fragment>
 

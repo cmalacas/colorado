@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Customer;
 use App\Contact;
 use App\ShipTo;
+use App\SalesRep;
 
 class CustomersController extends Controller
 {
@@ -17,7 +18,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $data['customers'] = Customer::where('status','=',1)->get();
+        $data['customers'] = Customer::where('status', '=', 1)->get();
 
         $data['table'] = view('customers.table', $data)->render();
 
@@ -54,10 +55,8 @@ class CustomersController extends Controller
 
         $shiptos = $request->get('shiptos');
 
-        if ($contacts)
-        {
-            foreach($contacts as $contact)
-            {
+        if ($contacts) {
+            foreach ($contacts as $contact) {
                 $c = new Contact;
 
                 $c->id = $contact['id'];
@@ -73,10 +72,8 @@ class CustomersController extends Controller
             }
         }
 
-        if ($shiptos)
-        {
-            foreach($shiptos as $shipto)
-            {
+        if ($shiptos) {
+            foreach ($shiptos as $shipto) {
                 $c = new ShipTo;
 
                 $c->shipto = $shipto['shipto'];
@@ -93,7 +90,7 @@ class CustomersController extends Controller
             }
         }
 
-        $customers = Customer::where('status','=',1)->get();
+        $customers = Customer::where('status', '=', 1)->get();
 
         $data['customers'] = $customers;
 
@@ -150,8 +147,7 @@ class CustomersController extends Controller
 
         $customer->save();
 
-        foreach($customer->contacts as $contact)
-        {
+        foreach ($customer->contacts as $contact) {
             $contact->delete();
         }
 
@@ -159,8 +155,7 @@ class CustomersController extends Controller
 
         if ($contacts) {
 
-            foreach($contacts as $contact)
-            {
+            foreach ($contacts as $contact) {
                 $c = new Contact;
 
                 $c->id = $contact['id'];
@@ -189,14 +184,13 @@ class CustomersController extends Controller
     {
         $customer = Customer::find($id);
 
-        foreach($customer->contacts as $contact)
-        {
+        foreach ($customer->contacts as $contact) {
             $contact->delete();
         }
 
         $customer->delete();
 
-        $customers = Customer::where('status','=',1)->get();
+        $customers = Customer::where('status', '=', 1)->get();
 
         $data['customers'] = $customers;
         $data['options'] = $customers->pluck('Name', 'id');
@@ -206,8 +200,9 @@ class CustomersController extends Controller
         return json_encode($data);
     }
 
-    public function hide($id) {
-        
+    public function hide($id)
+    {
+
         $customer = Customer::find($id);
 
         $customer->status = 0;
@@ -217,7 +212,8 @@ class CustomersController extends Controller
         return json_encode(['success' => 1]);
     }
 
-    public function gets() {
+    public function gets()
+    {
 
         $customers = Customer::OrderBy('name')->get();
 
@@ -225,50 +221,60 @@ class CustomersController extends Controller
 
     }
 
-    public function getData() {
+    public function getData()
+    {
 
         $customers = Customer::OrderBy('name')->get();
 
         $contacts = Contact::orderBy('name')->get();
         $shiptos = ShipTo::orderBy('shipto')->get();
+        $salesreps = SalesRep::orderBy('name')->get();
 
         $data['customers'] = $customers;
         $data['contacts'] = $contacts;
         $data['shiptos'] = $shiptos;
+        $data['salesreps'] = $salesreps;
 
-        return response()->json( $data, 200, [], JSON_NUMERIC_CHECK );
+        return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
 
     }
 
-    public function updateCustomer( Request $request ) {
+    public function updateCustomer(Request $request)
+    {
 
-        $customer = Customer::find( $request->get('id') );
+        $customer = Customer::find($request->get('id'));
 
         $customer->name = $request->get('name');
 
         $customer->save();
 
-        foreach( $customer->contacts as $co ) {
+        foreach ($customer->contacts as $co) {
 
             $co->delete();
 
         }
 
-        foreach( $customer->shiptos as $co ) {
+        foreach ($customer->shiptos as $co) {
 
             $co->delete();
 
         }
 
-        if ( $request->has('contacts') ) {
+        foreach ($customer->salesreps as $co) {
+
+            $co->delete();
+
+        }
+
+        if ($request->has('contacts')) {
 
             $contacts = $request->get('contacts');
 
-            foreach( $contacts as $c ) {
+            foreach ($contacts as $c) {
 
                 $name = $c['name'];
 
-                if ( strlen($name) > 0 ) {
+                if (strlen($name) > 0) {
 
                     $contact = new Contact;
 
@@ -288,15 +294,15 @@ class CustomersController extends Controller
 
         }
 
-        if ( $request->has('shiptos') ) {
+        if ($request->has('shiptos')) {
 
             $shiptos = $request->get('shiptos');
 
-            foreach( $shiptos as $c ) {
+            foreach ($shiptos as $c) {
 
                 $shipto = $c['shipto'];
 
-                if ( strlen($shipto) > 0 ) {
+                if (strlen($shipto) > 0) {
 
                     $s = new ShipTo;
 
@@ -318,19 +324,47 @@ class CustomersController extends Controller
 
         }
 
+        if ($request->has('salesreps')) {
+
+            $salesreps = $request->get('salesreps');
+
+            foreach ($salesreps as $c) {
+
+                $name = $c['name'];
+
+                if (strlen($name) > 0) {
+
+                    $s = new SalesRep;
+
+                    $s->customer_id = $customer->id;
+                    $s->name = $c['name'];
+                    $s->email = $c['email'];
+                    $s->phone = $c['phone'];
+
+                    $s->save();
+
+                }
+
+            }
+
+        }
+
 
         $customers = Customer::OrderBy('name')->get();
         $shiptos = ShipTo::orderBy('shipto')->get();
+        $salesreps = SalesRep::orderBy('name')->get();
 
         $data['customers'] = $customers;
         $data['contacts'] = Contact::orderBy('name')->get();
         $data['shiptos'] = $shiptos;
+        $data['salesreps'] = $salesreps;
 
-        return response()->json( $data, 200, [], JSON_NUMERIC_CHECK );
+        return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
 
     }
 
-    public function saveCustomer( Request $request ) {
+    public function saveCustomer(Request $request)
+    {
 
         $customer = new Customer;
 
@@ -340,15 +374,15 @@ class CustomersController extends Controller
 
         $customers = Customer::OrderBy('name')->get();
 
-        if ( $request->has('contacts') ) {
+        if ($request->has('contacts')) {
 
             $contacts = $request->get('contacts');
 
-            foreach( $contacts as $c ) {
+            foreach ($contacts as $c) {
 
                 $name = $c['name'];
 
-                if ( strlen($name) > 0 ) {
+                if (strlen($name) > 0) {
 
                     $contact = new Contact;
 
@@ -368,13 +402,13 @@ class CustomersController extends Controller
 
         }
 
-        if ( $request->has('shiptos') ) {
+        if ($request->has('shiptos')) {
 
             $shiptos = $request->get('shiptos');
 
-            foreach($shiptos as $shipto) {
+            foreach ($shiptos as $shipto) {
 
-                if (strlen($shipto['shipto']) > 0 ) {
+                if (strlen($shipto['shipto']) > 0) {
 
                     $c = new ShipTo;
 
@@ -400,15 +434,16 @@ class CustomersController extends Controller
         $data['shiptos'] = ShipTo::orderBy('shipto')->get();
 
 
-        return response()->json( $data, 200, [], JSON_NUMERIC_CHECK );
+        return response()->json($data, 200, [], JSON_NUMERIC_CHECK);
 
     }
 
-    public function delete( Request $request ) {
+    public function delete(Request $request)
+    {
 
-        $customer = Customer::find( $request->get('id') );
+        $customer = Customer::find($request->get('id'));
 
-        foreach( $customer->contacts as $co )  {
+        foreach ($customer->contacts as $co) {
 
             $co->delete();
 
@@ -417,6 +452,106 @@ class CustomersController extends Controller
         $customer->delete();
 
         return response()->json(['success' => 1], 200, [], JSON_NUMERIC_CHECK);
+
+    }
+
+    public function saveShipping(Request $request)
+    {
+
+        $id = $request->get('id');
+
+        $customer_id = $request->get('customer_id');
+
+        $shipto = $request->get('shipto');
+
+        $city = $request->get('city');
+
+        $state = $request->get('state');
+
+        $address1 = $request->get('address1');
+
+        $address2 = $request->get('address2');
+
+        $zip = $request->get('zip');
+
+        $phone = $request->get('phone');
+
+        $attn = $request->get('attn');
+
+        $shipping = ShipTo::find( $id );
+
+        $shipping->shipto = $shipto;
+        $shipping->address1 = $address1;
+        $shipping->address2 = $address2;
+        $shipping->state = $state;
+        $shipping->city = $city;
+        $shipping->zip = $zip;
+        $shipping->phone = $phone;
+        $shipping->attn = $attn;
+        $shipping->customer_id = $customer_id;
+
+        $shipping->save();
+
+        $_shipping = ShipTo::all();
+
+        return response()->json(['success' => 1, 'shipping' => $_shipping], 200, [], JSON_NUMERIC_CHECK);
+
+    }
+
+    public function addShipping(Request $request)
+    {
+
+        // $id = $request->get('id');
+
+        $shipto = $request->get('shipto');
+
+        $customer_id = $request->get('customer_id');
+
+        $city = $request->get('city');
+
+        $state = $request->get('state');
+
+        $address1 = $request->get('address1');
+
+        $address2 = $request->get('address2');
+
+        $zip = $request->get('zip');
+
+        $phone = $request->get('phone');
+
+        $attn = $request->get('attn');
+
+        $shipping = new ShipTo;
+
+        $shipping->shipto = $shipto;
+        $shipping->address1 = $address1;
+        $shipping->address2 = $address2;
+        $shipping->state = $state;
+        $shipping->city = $city;
+        $shipping->zip = $zip;
+        $shipping->phone = $phone;
+        $shipping->attn = $attn;
+        $shipping->customer_id = $customer_id;
+
+        $shipping->save();
+
+        $customer = Customer::find($customer_id);
+
+        $_shipping = ShipTo::all();
+
+        return response()->json(['success' => 1, 'shipping' => $_shipping], 200, [], JSON_NUMERIC_CHECK);
+
+    }
+
+    public function deleteShipping( Request $request ) {
+
+        $shipping = ShipTo::find( $request->get('id') );
+
+        $shipping->delete();
+
+        $_shipping = ShipTo::all();
+
+        return response()->json(['success' => 1, 'shipping' => $_shipping], 200, [], JSON_NUMERIC_CHECK);
 
     }
 }

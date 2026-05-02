@@ -1,3 +1,4 @@
+import { faShekelSign } from '@fortawesome/free-solid-svg-icons';
 import React, { Component, Fragment } from 'react';
 import { Card, CardBody, Input, FormGroup, Row, Col, Label, CardFooter, Button, CardHeader, Nav, NavItem, NavLink, TabPane, TabContent, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import Authservice from '../components/Authservice';
@@ -57,11 +58,7 @@ export default class PurchaseOrdersEdit extends Component {
             documents: [],
 
             activeTab: 'general',
-
-            sending: false
         }
-
-        this.mailRef = React.createRef();
 
         this.change = this.change.bind( this );
         this.addItem = this.addItem.bind( this );
@@ -88,45 +85,7 @@ export default class PurchaseOrdersEdit extends Component {
         this.upload = this.upload.bind(this);
         this.deleteDocument = this.deleteDocument.bind(this);
 
-        this.send = this.send.bind(this);
-
-    }
-
-    send( data ) {
-
-        this.setState( { sending: true }, () => {
-
-            const { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, contact, address, extension, shipTo, entered } = this.state;
-
-            const _for = this.state.for;
-
-            const _data = { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact, extension, shipTo, entered }
-
-            Authservice.updatePurchaseOrders( _data )
-            .then( response => {
-
-                if (response.success) {
-
-                    Authservice.sendPurchaseOrderEmail( data )
-                    .then( response => {
-
-                        if ( response.success ) {
-
-                            this.setState( { sending: false }, () => {
-
-                                this.mailRef.current.close();
-
-                            } );
-
-                        }
-
-                    })
-
-                }
-
-            })
-
-        });
+        
 
     }
 
@@ -271,24 +230,7 @@ export default class PurchaseOrdersEdit extends Component {
 
     print() {
 
-        const { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, shippingco, productionOrders, comments, contact, address, extension, shipTo, entered } = this.state;
-
-        const _for = this.state.for;
-
-        const data = { id, todaysdate, to, phone, cellphone, email, ship, datereqd, fax, _for, shippingco, productionOrders, comments, address, contact, extension, shipTo, entered }
-
-        Authservice.updatePurchaseOrders( data )
-        .then( response => {
-
-            if (response.success) {
-
-                window.open(`/purchase-orders/${this.state.id}/print`, 'purchaseOrders', 'width=999 height=999')
-
-            }
-
-        })
-
-        
+        window.open(`/purchase-orders/${this.state.id}/print`, 'purchaseOrders', 'width=999 height=999')
 
     }
 
@@ -368,7 +310,7 @@ export default class PurchaseOrdersEdit extends Component {
 
     selected( name, phone, extension, fax, email, cellphone, contact_id ) {
 
-        this.setState( { contact: contact_id, phone, extension, email, fax, cellphone } );
+        this.setState( { for: name, contact: contact_id, phone, extension, email, fax, cellphone } );
 
     }
 
@@ -436,17 +378,16 @@ export default class PurchaseOrdersEdit extends Component {
 
                 const pos = response.pos;
 
-                let index = 1;
+                const productionOrders = purchase.items.map( (i,index) => {
 
-                const productionOrders = purchase.items.map( (i) => {
-
-                    i.itemNo = index++;
+                    i.itemNo = index + 1;
 
                     return i;
 
                 });
 
-                //console.log('index', index, productionOrders);
+                // console.log('purchase items', productionOrders);
+                
 
                 const orders = response.production_orders;
 
@@ -474,8 +415,7 @@ export default class PurchaseOrdersEdit extends Component {
                                  next,
                                  pos,
                                  documents,
-                                 entered,
-                                 lastItem: index
+                                 entered
                                 } );
 
             }
@@ -490,17 +430,7 @@ export default class PurchaseOrdersEdit extends Component {
 
         const lastItem = this.state.lastItem + 1;
 
-        const order = { 
-                            itemNo: lastItem, 
-                            id: 0, 
-                            qty: 0, 
-                            price: 0, 
-                            recvd: '', 
-                            date: '', 
-                            description: '', 
-                            action: '', 
-                            production_order_id: 0 
-                        }
+        const order = { itemNo: lastItem, id: 0, qty: 0, price: 0, recvd: '', date: '', description: '', action: '', production_order_id: 0 }
 
         productionOrders.push( order );
 
@@ -592,12 +522,7 @@ export default class PurchaseOrdersEdit extends Component {
                             <Button className="mr-1" onClick={ this.save } color="primary">Save</Button>
                             <Button data-tip="Print" onClick={ this.print } className="mr-1" color="info"><FontAwesomeIcon icon={faPrint} /></Button>
                             
-                            <Email 
-                                ref={ this.mailRef }
-                                id={ this.state.id } 
-                                send={ this.send }
-                                sending={ this.state.sending }
-                            />
+                            <Email id={ this.state.id } />
                             
                             <Button data-tip="Add New Purchase Order" onClick={ this.add } className="mr-1" color="info"><FontAwesomeIcon icon={faPlus} /></Button>
                             <Button data-tip="Back" onClick={ this.back } color="info" className="mr-1"><FontAwesomeIcon icon={faArrowLeft} /></Button>
@@ -606,7 +531,7 @@ export default class PurchaseOrdersEdit extends Component {
                     </CardHeader>
                     <CardBody>
 
-                        <FormGroup className="mb-1 form-inline">
+                        <FormGroup className="mb-1">
                             <Label><Input className="position-relative ml-0" onChange={ () => this.setState( { entered: this.state.entered === 0 ? 1 : 0 } ) } type="checkbox" checked={ this.state.entered === 1 } /> Entered</Label>
                         </FormGroup>
 
@@ -633,109 +558,40 @@ export default class PurchaseOrdersEdit extends Component {
                                                                         
                             <TabPane tabId="general">
 
-                                <div className="row">
-
-                                    <div style={ { minWidth: "999px", maxWidth: '999px' } } className="col-md-9">
-
-                                <FormGroup className="mb-2" row>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Purchase Order #</Label>
+                                <FormGroup row>
+                                    <Col md={4}>
+                                        <Label>Purchase Order #</Label>
                                         <Input type="text" value={ this.state.id } disabled={ true } />
                                     </Col>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Today's Date</Label>
+                                    <Col md={4}>
+                                        <Label>Today's Date</Label>
                                         <Input type="date" name="todaysdate" value={ this.state.todaysdate } onChange={ this.change } />
                                     </Col>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Date Required</Label>
+                                    <Col md={4}>
+                                        <Label>Date Required</Label>
                                         <Input type="date" name="datereqd" value={ this.state.datereqd } onChange={ this.change } />
                                     </Col>
                                 </FormGroup>
 
-                                <FormGroup className="mb-2" row>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">To</Label>
-                                        <div style={ { minWidth: '290px'} } className="d-flex justify-content-between">
-                                            
-                                            <Select
-                                                className="w-100"
-                                                classNamePrefix="mw-290"
-                                                styles={ { maxWidth: '290px' } }
-                                                name="to"
-                                                defaultValue={ vendor }
-                                                value={ vendor }
-                                                options={ options }
-                                                onChange={ this.vendorSelected }
-                                            />
-                                            <div className="ml-1">
-                                                <Add icon={ faPlus } save={ this.saveVendor } />
-                                            </div>
-                                        </div>
-                                        
-                                    </Col>
-
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Phone</Label>
-                                        <Input type="text" name="phone" value={ this.state.phone } onChange={ this.changePhone } />
-                                    </Col>
-
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Extension</Label>
-                                        <Input type="text" name="extension" value={ this.state.extension } onChange={ this.change } />
-                                    </Col>
-
-                                </FormGroup>
-
-                                <FormGroup className="mb-2" row>
-
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Contact</Label>
-                                        <div className="d-flex" style={ { minWidth: '250px' } }>
-                                            <Select 
-                                                className="w-100"
-                                                name="contact" 
-                                                value={ contactSelected } 
-                                                defaultValue={ contactSelected } 
-                                                onChange={ this.selectContact } 
-                                                options={ contactOptions } 
-                                            />
-                                            <Contact 
-                                                contacts={ contacts } 
-                                                to={ to } 
-                                                select={ this.selected } 
-                                                update={ this.updateContact } 
-                                                save={ this.addContact } 
-                                                delete={ this.deleteContact }
-                                                />
-                                        </div>
-                                    </Col>
-
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Fax</Label>
-                                        <Input type="text" name="fax" value={ this.state.fax } onChange={ this.changePhone } />
-                                    </Col>
-
-                                </FormGroup>
-
-                                <FormGroup className="mb-2" row>
-
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Email</Label>
-                                        <Input  style={ { minWidth: '265px' } } type="text" name="email" value={ this.state.email } onChange={ this.change } />  
-                                    </Col>
-
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Cellphone</Label>
-                                        <Input type="text" name="cellphone" value={ this.state.cellphone } onChange={ this.changePhone } />
-                                    </Col>
-
-                                </FormGroup>
-
-                                {/* <FormGroup row>
+                                <FormGroup row>
                                     <Col md={6}>
                                         <Row>
                                             <Col>
-                                                
+                                                <Label className="d-block">To</Label>
+                                                <div className="d-flex justify-content-between">
+                                                    
+                                                    <Select
+                                                        className="w-100"
+                                                        name="to"
+                                                        defaultValue={ vendor }
+                                                        value={ vendor }
+                                                        options={ options }
+                                                        onChange={ this.vendorSelected }
+                                                    />
+                                                    <div className="ml-1">
+                                                        <Add icon={ faPlus } save={ this.saveVendor } />
+                                                    </div>
+                                                </div>
                                             </Col>
                                         </Row>
                                         <Row className="mt-3">
@@ -748,11 +604,34 @@ export default class PurchaseOrdersEdit extends Component {
 
                                     <Col md={6}>
                                         <Row>
-                                            
+                                            <Col>
+                                                <Label>Contact</Label>
+                                                <div className="d-flex">
+                                                    <Select 
+                                                        className="w-100"
+                                                        name="contact" 
+                                                        value={ contactSelected } 
+                                                        defaultValue={ contactSelected } 
+                                                        onChange={ this.selectContact } 
+                                                        options={ contactOptions } 
+                                                    />
+                                                    <Contact 
+                                                        contacts={ contacts } 
+                                                        to={ to } 
+                                                        select={ this.selected } 
+                                                        update={ this.updateContact } 
+                                                        save={ this.addContact } 
+                                                        delete={ this.deleteContact }
+                                                        />
+                                                </div>
+                                            </Col>
                                         </Row>
                                         
                                         <Row className="mt-3">
-                                            
+                                            <Col>
+                                                <Label>Email</Label>
+                                                <Input type="text" name="email" value={ this.state.email } onChange={ this.change } />  
+                                            </Col>
                                         </Row>
                                     </Col>
                                     
@@ -761,53 +640,57 @@ export default class PurchaseOrdersEdit extends Component {
                        
 
                                 <FormGroup row>
-                                    
-                                   
-                                   
-                                    
+                                    <Col md={3}>
+                                        <Label>Phone</Label>
+                                        <Input type="text" name="phone" value={ this.state.phone } onChange={ this.changePhone } />
+                                    </Col>
+                                    <Col md={1}>
+                                        <Label>Extension</Label>
+                                        <Input type="text" name="extension" value={ this.state.extension } onChange={ this.change } />
+                                    </Col>
+                                    <Col md={4}>
+                                        <Label>Fax</Label>
+                                        <Input type="text" name="fax" value={ this.state.fax } onChange={ this.changePhone } />
+                                    </Col>
+                                    <Col md={4}>
+                                        <Label>Cellphone</Label>
+                                        <Input type="text" name="cellphone" value={ this.state.cellphone } onChange={ this.changePhone } />
+                                    </Col>
 
-                                    </FormGroup> */}
+                                </FormGroup>
 
                                 
 
                                 <FormGroup row>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Shipping Company</Label>
+                                    <Col md={6}>
+                                        <Label>Shipping Company</Label>
                                         <Input type="text" name="shippingco" value={ this.state.shippingco } onChange={ this.change } />
                                     </Col>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">Ship</Label>
+                                    <Col md={6}>
+                                        <Label>Ship</Label>
                                         <Input type="select" name="ship" value={ this.state.ship } onChange={ this.change }>
                                             <option value="Pickup">Pickup</option>
                                             <option value="Ship Via">Ship Via</option>
                                         </Input>
                                     </Col>
-                                    <Col md={4} className="form-inline">
-                                        <Label className="mr-2">For</Label>                               
-                                        <Input type="text" name="for" value={ this.state.for } onChange={ this.change } />    
-                                    </Col>
                                 </FormGroup>
 
-                                {/* <Row className="mb-4">
+                                <Row className="mb-4">
                                     <Col>
                                         <Label>For</Label>                               
                                         <Input type="text" name="for" value={ this.state.for } onChange={ this.change } />    
                                     </Col>
-                                </Row> */}
+                                </Row>
 
-                                <Row>
-
-                                    <Col md={11}>
-
-                                <table className="production-table table table-border table-striped table-hover mt-4">
+                                <table className="table table-border table-striped table-hover mt-4">
 
                                     <thead>
                                         <tr>
                                             <th>
-                                                PO #
+                                                Production Order#
                                             </th>
                                             <th>
-                                                Qty
+                                                Quantity
                                             </th>
                                             <th>
                                                 Description
@@ -856,30 +739,17 @@ export default class PurchaseOrdersEdit extends Component {
 
                                 </table>
 
-                                        </Col>
-
-                                </Row>
-
                                 
 
-                                <FormGroup row>
-                                    <Col md={11}>
-                                        <Label>Ship To</Label>
-                                        <Input type="textarea" rows="8" name="shipTo" value={ this.state.shipTo } onChange={ this.change } />
-                                    </Col>
+                                <FormGroup>
+                                    <Label>Ship To</Label>
+                                    <Input type="textarea" rows="8" name="shipTo" value={ this.state.shipTo } onChange={ this.change } />
                                 </FormGroup>
 
-                                <FormGroup row>
-                                    <Col md={11}>
-                                        <Label>Comments</Label>
-                                        <Input type="textarea" rows="5" name="comments" value={ this.state.comments } onChange={ this.change } />
-
-                                    </Col>
+                                <FormGroup>
+                                    <Label>Comments</Label>
+                                    <Input type="textarea" name="comments" value={ this.state.comments } onChange={ this.change } />
                                 </FormGroup>
-
-                                </div>
-
-                                </div>
                             
                             </TabPane>
 
@@ -1026,8 +896,7 @@ class Email extends Component {
 
             email: '',
             message: '',
-            open: false,
-            sending: props.sending,
+            open: false
 
         }
 
@@ -1042,24 +911,16 @@ class Email extends Component {
 
         data.id = this.props.id;
 
-        this.setState( { sending: true }, () => {
+        Authservice.sendPurchaseOrderEmail( data )
+        .then( response => {
 
-            this.props.send( data );
+            if ( response.success ) {
 
-            /* Authservice.sendPurchaseOrderEmail( data )
-            .then( response => {
+                this.setState( { open: false } );
 
-                if ( response.success ) {
+            }
 
-                    this.setState( { open: false, sending: false } );
-
-                }
-
-            })*/
-
-        } );
-
-        
+        })
 
     }
 
@@ -1108,14 +969,14 @@ class Email extends Component {
                             <Input type="email" name="email" onChange={ this.change } />
                         </FormGroup>
 
-                        {/* <FormGroup>
+                        <FormGroup>
                             <Label>Message / Notes</Label>
                             <Input type="textarea" name="message" onChange={ this.change } />
-        </FormGroup> */}
+                        </FormGroup>
 
                     </ModalBody>
                     <ModalFooter>
-                        <Button onClick={ this.save } color="success"><FontAwesomeIcon icon={faPaperPlane} /> { this.props.sending ? 'Sending, please wait... ' : 'Send' }</Button> <Button color="light" onClick={ this.close }><FontAwesomeIcon icon={faBan} /> Cancel</Button>
+                        <Button onClick={ this.save } color="success"><FontAwesomeIcon icon={faPaperPlane} /> Sent</Button> <Button color="light" onClick={ this.close }><FontAwesomeIcon icon={faBan} /> Cancel</Button>
                     </ModalFooter>
                 </Modal>
 

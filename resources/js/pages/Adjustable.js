@@ -181,15 +181,15 @@ export default class Adjustable extends Component {
 
         let counter = 0;
 
-        const search = this.state.search.toString().toUpperCase().replace(/\s/g,'');
+        const search = this.state.search;
 
         const outs = this.state.data.filter( d => { 
             
-            const die_size = d.die_size ? d.die_size.toString().toUpperCase().replace(/\s/g,'') : '';
-            const sheet_size = d.sheet_size ? d.sheet_size.toString().toUpperCase().replace(/\s/g,'') : '';
-            const die_number = d.die_number ? d.die_number.toString().toUpperCase().replace(/\s/g,'') : '';
-            const number_out = d.number_out ? d.number_out.toString().toUpperCase().replace(/\s/g,'') : '';
-            const seal_flap_size = d.seal_flap_size ? d.seal_flap_size.toString().toUpperCase().replace(/\s/g,'') : '';
+            const die_size = d.die_size ? d.die_size : '';
+            const sheet_size = d.sheet_size ? d.sheet_size : '';
+            const die_number = d.die_number ? d.die_number : '';
+            const number_out = d.number_out ? d.number_out : '';
+            const seal_flap_size = d.seal_flap_size ? d.seal_flap_size : '';
 
             const field = this.state.field;
 

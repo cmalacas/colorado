@@ -720,7 +720,8 @@ class PurchaseOrders extends Controller
 
         $mail->file = Storage::path('pdf/purchase-order/' . $id . '.pdf');
 
-        Mail::to($request->get('email'))->send( $mail );
+        Mail::to($request->get('email'))
+            ->send( $mail );
 
         //Mail::to('don@coloradoenvelope.com')->send( $mail );
         

@@ -7,7 +7,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faPrint, faExpand } from '@fortawesome/free-solid-svg-icons';
 
 import { Row, Col, Button, Input } from 'reactstrap';
 
@@ -28,18 +28,18 @@ export default class FoldingSchedule extends Component {
             statuses: [],
             jetStatuses: [],
 
-            rowStatus: 'collapse'
+            collapse: true
 
         }
 
         this.save = this.save.bind( this );
         this.doPrint = this.doPrint.bind( this );
-        this.expand = this.expand.bind(this);
+        this.doExpandCollapse = this.doExpandCollapse.bind( this );
     }
 
-    expand() {
+    doExpandCollapse() {
 
-        this.setState( { rowStatus: this.state.rowStatus === 'collapse' ? 'expand' : 'collapse' } );
+        this.setState({ collapse: !this.state.collapse } );
 
     }
 
@@ -55,6 +55,10 @@ export default class FoldingSchedule extends Component {
 
     save( oldvalue, newvalue, row, column) {
 
+        // console.log('new value', newvalue);
+        // console.log('row', row);
+        // console.log('column', column);
+
         const data = this.state.data.map( d => {
 
             if ( d.id === row.id ) {
@@ -62,6 +66,12 @@ export default class FoldingSchedule extends Component {
                 if (column.dataField === 'customer_id') {
 
                     row.CustomerId = parseInt(newvalue);
+
+                }
+
+                if (column.dataField === 'FoldingOrder') {
+
+                    row.FoldingOrder = parseInt(newvalue);
 
                 }
 
@@ -78,7 +88,11 @@ export default class FoldingSchedule extends Component {
 
         });
 
+        console.log('data', data)
+
         this.setState( { data } );
+
+        console.log('row', row);
 
         Authservice.saveFoldingSchedule( row );
 
@@ -121,6 +135,8 @@ export default class FoldingSchedule extends Component {
             d.ship_via = d.SHIPVIA === 1 ? 'Yes' : 'No';
 
             d.x = 'x';
+
+            // d._id = <a href={`/production-orders/${d.id}/edit`}>{d.id}</a>
 
             d.customer = customer.length > 0 ? customer[0].name : '';
 
@@ -171,9 +187,9 @@ export default class FoldingSchedule extends Component {
                     dataField: 'id',
                     text: 'Job #',
                     editable: false,
-                    formatter: (cell, row) => {
+                    formatter: (cell) => {
 
-                        return <a href={`/production-orders/${row.id}/edit`} target="_blank">{cell}</a>
+                        return <a href={`/production-orders/${cell}/edit`}>{cell}</a>
 
                     }
                 },
@@ -285,14 +301,6 @@ export default class FoldingSchedule extends Component {
                                     )
                                 };
 
-        const head_latex_folding_order = {
-                                    dataField: 'LatexPSFoldingOrder',
-                                    text: 'Order',
-                                    editorRenderer: ( editorProps, value, row, rowIndex, columnIndex ) => (
-                                        <Number { ...editorProps } value={ value } />
-                                    )
-                                };
-
         const head_colors1 =    { 
                                     dataField: 'Colors1',
                                     text: 'Colors1',
@@ -340,7 +348,10 @@ export default class FoldingSchedule extends Component {
                                 dataField: 'JetOrder',
                                 text: 'JetOrder',
                                 editorRenderer: ( editorProps, value, row, rowIndex, columnIndex ) => (
-                                    <Number { ...editorProps } value={ value } />
+                                    <Number 
+                                        { ...editorProps } 
+                                        value={ value } 
+                                    />
                                 )
                             };
         
@@ -353,31 +364,16 @@ export default class FoldingSchedule extends Component {
                                 }
                             }
 
-        if (machine.machine === 'Latex / PS') {
-
-            //columns.push( head_folding_due );
-            columns.push( head_printing );
-            columns.push( head_location );
-            columns.push( head_folding_schedule_status );
-            columns.push( head_stock_due_in );
-            columns.push( head_latex_folding_order );
-            columns.push( head_date_due );
-            columns.push( head_job_title );
-            columns.push( head_ship_via );
-
-            title = 'Latex / PS Schedule';
-
-        }
-
-        if (machine.machine === 'RA-1' || 
+        if (machine.machine === 'Latex / PS' || 
+            machine.machine === 'RA-1' || 
             machine.machine === 'RA-2' || 
             machine.machine === 'RA-3' || 
             machine.machine === 'RA-WEB'  ||
-            machine.machine === 'RO-WEB' ||
-            machine.machine === 'WR-1' ||
-            machine.machine === 'WR-2' ||
+            machine.machine === 'RO-1' ||
+            machine.machine === 'RO-3' ||
+            machine.machine === 'WR-A' ||
             machine.machine === 'WR-3' ||
-            machine.machine === 'MO' ||
+            machine.machine === 'RO-2' ||
             machine.machine === 'MOW'
             ) {
 
@@ -412,7 +408,7 @@ export default class FoldingSchedule extends Component {
             //columns.push( head_jet_due );
             columns.push( head_printing );
             columns.push( head_location );
-            columns.push( head_date_due );
+            columns.push( head_stock_due_in );
             columns.push( head_jet_order );
             columns.push( head_jet_status );
             columns.push( head_job_title );
@@ -446,17 +442,20 @@ export default class FoldingSchedule extends Component {
 
                 <Row className="mb-2">
                     <Col className="text-right">
-                        <Button onClick={ this.expand } color="info" className="mr-1">Expand / Collapse</Button>
                         <Button onClick={ this.doPrint } color="info"><FontAwesomeIcon icon={faPrint} /> Print</Button>
+
+                        <Button onClick={ this.doExpandCollapse } className="ml-1" color="info"><FontAwesomeIcon icon={faExpand} /> Expand / Collapse</Button>
                     </Col>
-                </Row>
+                </Row>  
 
                 <BootstrapTable 
                     keyField='id' 
                     columns={ columns } 
                     cellEdit={ cellEditFactory({ mode: 'click', blurToSave: true, afterSaveCell : this.save }) }
-                    classes={ this.state.rowStatus === 'collapse' ? 'table-single-liner' : '' }
-                    data={ data } striped hover />
+                    data={ data } 
+                    classes={ this.state.collapse ? 'collapse' : 'expand'}
+                    striped hover 
+                />
 
             </Fragment>
 
@@ -486,7 +485,7 @@ export class Number extends Component {
 
         return this.state.value;
 
-    }
+    } 
 
     componentDidMount() {
 
@@ -504,9 +503,16 @@ export class Number extends Component {
 
         const value = this.state.value;
 
+        // console.log('blur', this.props);
+
         return (
 
-            <Input type="number" value={ value } onChange={ this.change } onBlur={ this.props.onBlur } />
+            <Input 
+                type="number" 
+                value={ value } 
+                onChange={ this.change } 
+                onBlur={ this.props.onBlur } 
+            />
 
         )
 

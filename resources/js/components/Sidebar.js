@@ -13,7 +13,8 @@ export default class Sidebar extends Component {
             wr: [],
             jet: [],
             latex: [],
-            web: []
+            web: [],
+            ro: []
         }
 
     }
@@ -31,8 +32,9 @@ export default class Sidebar extends Component {
                 const jet = response.jet;
                 const latex = response.latex;
                 const web = response.web;
+                const ro = response.ro;
 
-                this.setState( { mo, ra, wr, jet, latex, web } );
+                this.setState( { mo, ra, wr, jet, latex, web, ro } );
 
             }
 
@@ -43,7 +45,7 @@ export default class Sidebar extends Component {
 
     render() {
 
-        const { mo, ra, wr, jet, latex, web } = this.state;    
+        const { mo, ra, wr, jet, latex, web, ro } = this.state;    
         
         return (
 
@@ -63,24 +65,23 @@ export default class Sidebar extends Component {
                             <ul id="sidebarnav">
                                 <li> <a className="waves-effect waves-dark" href="/" aria-expanded="false"><span className="hide-menu">Dashboard</span></a></li>
                                 
-                                <li className="bg-dark mb-0 mt-0"><a className="bg-dark waves-effect waves-dark" href="/production-orders" aria-expanded="false"><span className="hide-menu">Production Orders</span></a>
+                                <li className="dark" style={{background: '#000000'}}><a className="waves-effect waves-dark" href="/production-orders" aria-expanded="false"><span className="hide-menu">Production Orders</span></a>
                                     
+                                    <ul className="dark">
+                                        <li> <a className="waves-effect waves-dark" href="/not-invoiced" aria-expanded="false"><span className="hide-menu"></span>Not Invoiced</a></li>
+
+                                    </ul>
+
                                 </li>
 
-                                <li className="mb-0 mt-0"> <a className="bg-dark waves-effect waves-dark" href="/not-invoiced" aria-expanded="false"><span className="hide-menu"></span>Not Invoiced</a>
+                                <li> <a className="waves-effect waves-dark" href="/purchase-orders" aria-expanded="false"><span className="hide-menu"></span>Purchase Orders</a>
                                 
                                     <ul>
-
-                                        <li> <a className="waves-effect waves-dark" href="/purchase-orders" aria-expanded="false"><span className="hide-menu"></span>Purchase Orders</a></li>
-
                                         <li> <a className="waves-effect waves-dark" href="/not-entered" aria-expanded="false"><span className="hide-menu"></span>Not Entered</a></li>
-                                        
                                     </ul>
-                                
                                 
                                 </li>
 
-                                
                                 
                                 
                             
@@ -93,7 +94,7 @@ export default class Sidebar extends Component {
                                 <li>
                                    
 
-                                    { ( mo || ra || wr || latex || web ) ?
+                                    { ( mo || ra || wr || latex || web || ro ) ?
 
                                         <ul>
                                             { ra.map( r => {
@@ -103,6 +104,14 @@ export default class Sidebar extends Component {
                                                 )
 
                                             })}
+
+                                            { ro.map( m => {
+
+                                                return (
+                                                    <li><a className="waves-effect waves-dark" href={`/folding-schedule/${m.id}`}>{m.machine}</a></li>
+                                                )
+
+                                            })}  
 
                                             { web.map( m => {
 
@@ -182,19 +191,19 @@ export default class Sidebar extends Component {
                                 </li>
 
                                 <li>
-                                    <a className="waves-effect waves-dark" href="/tables/out-diagonals" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>Diagonals</a>
+                                    <a className="waves-effect waves-dark" href="/tables/out-diagonals" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>Out Diagonals</a>
                                 </li>
 
                                 <li>
-                                    <a className="waves-effect waves-dark" href="/tables/out-mo-booklet" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>MO Booklet</a>
+                                    <a className="waves-effect waves-dark" href="/tables/out-mo-booklet" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>Out MO Booklet</a>
                                 </li>
 
                                 <li>
-                                    <a className="waves-effect waves-dark" href="/tables/out-mo-catalog" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>MO Catalog</a>
+                                    <a className="waves-effect waves-dark" href="/tables/out-mo-catalog" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>Out MO Catalog</a>
                                 </li>
 
                                 <li>
-                                    <a className="waves-effect waves-dark" href="/tables/out-side-seam" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>Side Seam</a>
+                                    <a className="waves-effect waves-dark" href="/tables/out-side-seam" aria-expanded="false"><i className="fa fa-smile-o"></i><span className="hide-menu"></span>Out Side Seam</a>
                                 </li>
 
                                 <li>

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseOrder extends Model
 {
     public function items() {
-        return $this->hasMany('App\PurchaseOrderItem', 'purchase_order_id');
+        return $this->hasMany('App\PurchaseOrderItem', 'purchase_order_id')->orderBy('id', 'asc');
     }
 
     public function customer() {

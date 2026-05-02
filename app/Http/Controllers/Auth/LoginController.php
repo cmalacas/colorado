@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 
+use App\User;
+
 class LoginController extends Controller
 {
     /*
@@ -42,4 +44,17 @@ class LoginController extends Controller
         auth()->logout();
         return redirect('/login');
       }
+
+    public function login(Request $request) {
+
+        $email = $request->get('email');
+        $password = $request->get('password');
+
+        echo env('DB_USERNAME');
+        echo env('DB_PASSWORD');
+
+        return User::all();
+
+    }
+       
 }
